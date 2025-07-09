@@ -3,8 +3,8 @@ import torch.nn as nn
 
 from .transformer import TransformerBlock
 from .embeddings import PatchEmbed
-from .positional_encodings import sinusoidal_embedding_3d
-from .conv import SubPixelConv3D
+from .positional_encodings import sinusoidal_embedding_2d, sinusoidal_embedding_3d
+from .conv import SubPixelConv2D, SubPixelConv3D
 
 class ViT(nn.Module):
 
@@ -13,18 +13,14 @@ class ViT(nn.Module):
         d_embed: int = 192, 
         n_heads: int = 6, 
         n_layers: int = 6, 
-        img_shape: tuple[int, int, int] = (1, 256, 256), 
-        patch_shape: tuple[int, int, int] = (1, 16, 16)
-    ) -> None:
+        img_shape: tuple[int, int] = (256, 256), 
+        patch_shape: tuple[int, int] = (16, 16)
+    ):
         super().__init__()
 
         self.img_shape = img_shape
         self.patch_shape = patch_shape
-        self.grid_shape = (
-            img_shape[0] // patch_shape[0],
-            img_shape[1] // patch_shape[1],
-            img_shape[2] // patch_shape[2],
-        )
+        self.grid_shape = (img_shape[0] // patch_shape[0], img_shape[1] // patch_shape[1])
 
         self.patch_embed = PatchEmbed(
             img_shape=img_shape, 
@@ -33,7 +29,7 @@ class ViT(nn.Module):
             out_channels=d_embed,
         )
 
-        self.pos_embed = sinusoidal_embedding_3d(d_embed, self.grid_shape)
+        self.pos_embed = sinusoidal_embedding_2d(d_embed, *self.grid_shape)
 
         # Transformer blocks and coalesced head/latent masks
         self.transformer_blocks = nn.ModuleList([
@@ -43,9 +39,9 @@ class ViT(nn.Module):
 
         self.norm = nn.LayerNorm(d_embed)
 
-        self.upsample = SubPixelConv3D(
+        self.upsample = SubPixelConv2D(
             img_shape=img_shape, 
-            patch_shape=patch_shape, 
+            patch_size=patch_shape[0], 
             in_channels=d_embed, 
             out_channels=1, 
         )

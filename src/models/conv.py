@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-def intialize_icnr(tensor, initializer, upscale_factor=2, *args, **kwargs):
+def initialize_icnr(tensor, initializer, upscale_factor=2, *args, **kwargs):
     """
     Initialize the weights of the convolutional layer using the ICNR method.
 
@@ -23,6 +23,54 @@ def intialize_icnr(tensor, initializer, upscale_factor=2, *args, **kwargs):
 
     # Repeat the sub_kernel to the original size
     return sub_kernel.repeat_interleave(upscale_factor_squared, dim=0)
+
+class SubPixelConv2D(nn.Module):
+    """
+    Patch Embedding Recovery to 2D Image.
+
+    Args:
+        img_shape (tuple[int]): Lat, Lon
+        patch_size (int): Lat, Lon
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+    """
+
+    def __init__(self, img_shape: tuple[int, int], patch_size: int, in_channels: int, out_channels: int):
+        super().__init__()
+        self.img_shape = img_shape
+        self.conv = nn.Conv2d(
+            in_channels, out_channels * patch_size ** 2, 
+            kernel_size=3, stride=1, padding=1, 
+            bias=False, padding_mode='circular'
+        )
+        self.conv.weight.data.copy_(initialize_icnr(
+            self.conv.weight,   
+            initializer=nn.init.kaiming_normal_,
+            upscale_factor=patch_size
+        ))
+        self.pixel_shuffle = nn.PixelShuffle(patch_size)
+
+    def forward(self, x: torch.Tensor):
+
+        # Apply conv layer
+        output = self.conv(x)
+
+        # Apply pixel shuffle
+        output = self.pixel_shuffle(output)
+
+        # Pad output to match image shape
+        _, _, H, W = output.shape
+        h_pad = H - self.img_shape[0]
+        w_pad = W - self.img_shape[1]
+
+        padding_top = h_pad // 2
+        padding_bottom = int(h_pad - padding_top)
+
+        padding_left = w_pad // 2
+        padding_right = int(w_pad - padding_left)
+
+        # Return padded output
+        return output[:, :, padding_top: H - padding_bottom, padding_left: W - padding_right]
 
 class SubPixelConv3D(nn.Module):
     """
@@ -48,7 +96,7 @@ class SubPixelConv3D(nn.Module):
             kernel_size=3, stride=1, padding=1, 
             bias=False, padding_mode='circular'
         )
-        self.conv.weight.data.copy_(intialize_icnr(
+        self.conv.weight.data.copy_(initialize_icnr(
             self.conv.weight,   
             initializer=nn.init.kaiming_normal_,
             upscale_factor=patch_size

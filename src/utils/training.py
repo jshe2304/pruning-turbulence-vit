@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-def train_one_epoch(model, dataloader, optimizer, device='cpu'):
+def train_one_epoch(model, dataloader, optimizer):
     """
     Trains the model for one epoch. 
     """
@@ -10,7 +10,6 @@ def train_one_epoch(model, dataloader, optimizer, device='cpu'):
 
     model.train()
     for x, y in dataloader:
-        x, y = x.to(device), y.to(device)
         optimizer.zero_grad()
         pred = model(x)
         loss = nn.functional.mse_loss(pred, y)

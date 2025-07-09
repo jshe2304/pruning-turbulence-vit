@@ -1,12 +1,12 @@
 import torch
 
-def sinusoidal_embedding_1d(d_embed: int, n_positions: int):
+def sinusoidal_embedding_1d(d_embed: int, l: int):
     """
     Generate 1D sinusoidal embeddings.
 
     Args:
-        d_embed: Output dimension for each position (must be even).
-        n_positions: Number of positions to encode.
+        d_embed: Output dimension for each position (must be even). 
+        l: Length of token sequence. 
 
     Returns:
         Tensor of shape (M, d_embed) containing sinusoidal embeddings.
@@ -15,7 +15,7 @@ def sinusoidal_embedding_1d(d_embed: int, n_positions: int):
 
     i = torch.arange(d_embed // 2)
     omega = 10000 ** (-2 * i / d_embed)
-    pos = torch.arange(n_positions)
+    pos = torch.arange(l)
     angles = pos.unsqueeze(1) * omega.unsqueeze(0)
 
     emb_sin = torch.sin(angles)
@@ -24,6 +24,32 @@ def sinusoidal_embedding_1d(d_embed: int, n_positions: int):
     emb = torch.cat([emb_sin, emb_cos], dim=1)
 
     return emb
+
+def sinusoidal_embedding_2d(d_embed: int, h: int, w: int): 
+    """
+    Generate 2D sinusoidal embeddings.
+
+    Args:
+        d_embed: Output dimension for each position (must be even).
+        height: Height of the grid.
+        width: Width of the grid.
+    """
+    assert (d_embed % 4) == 0
+
+    y, x = torch.meshgrid(torch.arange(h), torch.arange(w), indexing="ij")
+
+    # Frequencies
+    
+    omega = torch.arange(d_embed // 4) / (d_embed // 4 - 1)
+    omega = 10000 ** (-omega)
+
+    # Embeddings
+
+    y = y.flatten()[:, None] * omega[None, :]
+    x = x.flatten()[:, None] * omega[None, :]
+    pe = torch.cat((x.sin(), x.cos(), y.sin(), y.cos()), dim=1)
+
+    return pe
 
 def sinusoidal_embedding_3d(d_embed: int, grid_size: tuple[int, int, int]):
     """
