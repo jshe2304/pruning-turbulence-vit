@@ -56,7 +56,7 @@ class TimeSeriesDataset(Dataset):
         omega = loadmat(file_path)['Omega']
         uv = self._omega_to_uv(omega)
         uv = self.normalize(uv)
-        return uv.unsqueeze(1)
+        return uv
 
     def _omega_to_uv(self, omega: np.ndarray) -> torch.Tensor:
         """

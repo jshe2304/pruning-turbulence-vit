@@ -19,7 +19,10 @@ from utils.training import sample_loss
 # Config
 ########
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = 'cuda'
+
+log_dir = '/glade/derecho/scratch/jshen/turbulence_vit_logs/'
+checkpoint_dir = '/glade/derecho/scratch/jshen/turbulence_vit_checkpoints/'
 
 ######
 # Data
@@ -38,18 +41,21 @@ validation_dataset, validation_dataloader = get_time_series_dataloader(data_dir,
 #######
 
 model = ViT(
+    in_channels=2,
     d_embed=192,
-    n_heads=6, 
-    n_layers=12, 
+    n_heads=8, 
+    n_layers=8, 
     img_shape=(256, 256), 
-    patch_shape=(16, 16), 
-).to(device)
+    patch_shape=(4, 4), 
+)
+model = torch.nn.DataParallel(model)
+model = model.to(device)
 
 ###########################
 # Optimizers and schedulers
 ###########################
 
-optimizer = AdamW(model.parameters(), lr=5e-4, weight_decay=1e-7)
+optimizer = AdamW(model.parameters(), lr=0.0005, weight_decay=1e-7)
 
 warmup_scheduler = torch.optim.lr_scheduler.LinearLR(
     optimizer, start_factor=0.001, total_iters=3
@@ -75,8 +81,16 @@ for epoch in range(1000):
         loss.backward()
         optimizer.step()
 
-        if epoch < 3: warmup_scheduler.step()
-        plateau_scheduler.step(validation_losses[-1])
+    if epoch < 3: warmup_scheduler.step()
+    plateau_scheduler.step(validation_losses[-1])
 
     train_losses.append(sample_loss(model, train_dataset))
     validation_losses.append(sample_loss(model, validation_dataset))
+
+    with open(log_dir + 'train_losses.txt', 'a') as f:
+        f.write(f'{train_losses[-1]}\n')
+    with open(log_dir + 'validation_losses.txt', 'a') as f:
+        f.write(f'{validation_losses[-1]}\n')
+
+    if epoch % 25 == 0:
+        torch.save(model.state_dict(), checkpoint_dir + f'checkpoint_{epoch}.pt')

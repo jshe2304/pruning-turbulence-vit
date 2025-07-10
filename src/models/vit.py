@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from .transformer import TransformerBlock
-from .embeddings import PatchEmbed
+from .embeddings import PatchEmbed2D, PatchEmbed3D
 from .positional_encodings import sinusoidal_embedding_2d, sinusoidal_embedding_3d
 from .conv import SubPixelConv2D, SubPixelConv3D
 
@@ -10,11 +10,12 @@ class ViT(nn.Module):
 
     def __init__(
         self, 
-        d_embed: int = 192, 
-        n_heads: int = 6, 
-        n_layers: int = 6, 
-        img_shape: tuple[int, int] = (256, 256), 
-        patch_shape: tuple[int, int] = (16, 16)
+        in_channels: int,
+        d_embed: int, 
+        n_heads: int, 
+        n_layers: int, 
+        img_shape: tuple[int, int], 
+        patch_shape: tuple[int, int],
     ):
         super().__init__()
 
@@ -22,10 +23,10 @@ class ViT(nn.Module):
         self.patch_shape = patch_shape
         self.grid_shape = (img_shape[0] // patch_shape[0], img_shape[1] // patch_shape[1])
 
-        self.patch_embed = PatchEmbed(
+        self.patch_embed = PatchEmbed2D(
             img_shape=img_shape, 
             patch_shape=patch_shape, 
-            in_channels=1,
+            in_channels=in_channels,
             out_channels=d_embed,
         )
 
@@ -65,6 +66,13 @@ class ViT(nn.Module):
         return parameters_to_prune
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            x: Input tensor of shape (B, C, H, W)
+        Returns:
+            x: Output tensor of shape (B, C, H, W)
+        """
+
         x = self.patch_embed(x)
         x += self.pos_embed
         for block in self.transformer_blocks:
@@ -101,7 +109,7 @@ class EncoderDecoderViT(nn.Module):
 
         # Patch embedding
 
-        self.patch_embed = PatchEmbed(
+        self.patch_embed = PatchEmbed3D(
             img_shape=img_shape, 
             patch_shape=patch_shape, 
             in_channels=in_channels, 
