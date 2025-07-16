@@ -1,91 +1,89 @@
 """
-A training loop following the lottery ticket pruning strategy. 
-Here, we prune globally across the entire model. 
-See https://arxiv.org/pdf/1903.01611
+Iterative global pruning script with reinitialization. 
 
-1. Train a model for k epochs
-2. Prune the model
-3. Reinitialize to epoch k's weights
-4. Repeat 1-3 until the model is pruned to the desired size
+To run, pass in a path to a TOML config file as an argument. 
+The TOML should contain the following sections:
+- model: The model to train
+- training: The training parameters
+- train_dataset: The training dataset
+- validation_dataset: The validation dataset
 """
+
+import sys
+import toml
 
 import torch
 from torch.optim import AdamW
-from torch.nn.utils import prune
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader
+
 from models.vit import ViT
 
-from utils.data import load_data
-from utils.train import train_one_epoch, sample_loss
+from utils.data import TimeSeriesDataset
+from utils.training import sample_loss, train_one_epoch
 
-# Device
+def initialize(
+    model, device, 
+    train_dataset, 
+    learning_rate, weight_decay,
+    warmup_start_factor, warmup_total_batches, 
+    epochs, batch_size, 
+    ):
+    """
+    Initialize the model. 
 
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    Args:
+        model: The model to initialize
+        device: The device to use
+        train_dataset: The training dataset
+    """
 
-# Training parameters
+    # Dataloader
 
-EPOCHS = 100
-INIT_EPOCHS = 10
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-# Data
+    # Optimizer
 
-TRAIN_DATADIR = '/scratch/midway3/jshe/2d_turbulence'
-VALIDATION_DATADIR = '/scratch/midway3/jshe/2d_turbulence_validation'
+    optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
-###########
-# Load data
-###########
+    # Schedulers
 
-train_dataset = load_data(TRAIN_DATADIR)
-train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=32)
-
-validation_dataset = load_data(VALIDATION_DATADIR)
-validation_dataloader = torch.utils.data.DataLoader(validation_dataset, batch_size=32)
-
-#######
-# Model
-#######
-
-model = ViT(
-    img_shape=(1, 256, 256),
-    patch_shape=(1, 16, 16),
-).to(DEVICE)
-
-########################
-# Initial training loop
-########################
-
-optimizer = AdamW(model.parameters(), lr=5e-4, weight_decay=1e-7)
-for epoch in range(INIT_EPOCHS):
-    train_one_epoch(model, train_dataloader, optimizer, device=DEVICE)
-
-initialization = model.state_dict()
-
-########################
-# Iterative pruning loop
-########################
-
-train_losses = []
-validation_losses = []
-
-for prune_iteration in range(8):
-
-    # Retrain
-
-    optimizer = AdamW(model.parameters(), lr=5e-4, weight_decay=1e-7)
-    for epoch in range(EPOCHS):
-        train_one_epoch(model, train_dataloader, optimizer, device=DEVICE)
-
-    # Log losses
-
-    train_losses.append(sample_loss(model, train_dataset.data, device=DEVICE))
-    validation_losses.append(sample_loss(model, validation_dataset.data, device=DEVICE))
-
-    # Prune and reinitialize
-
-    prune.global_unstructured(
-        model.get_parameters_to_prune(),
-        pruning_method=prune.L1Unstructured,
-        amount=0.1,
+    warmup_scheduler = torch.optim.lr_scheduler.LinearLR(
+        optimizer, start_factor=warmup_start_factor, total_iters=warmup_total_batches
     )
 
-    model.load_state_dict(initialization)
+    # Training
+
+    for epoch in range(epochs):
+        train_one_epoch(model, optimizer, device, train_dataloader, warmup_scheduler)
+
+    return model, optimizer, warmup_scheduler
+
+if __name__ == '__main__':
+
+    # Load config
+
+    config_path = sys.argv[1]
+    config = toml.load(config_path)
+
+    # Device
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    n_gpus = torch.cuda.device_count()
+
+    # Initialize model
+
+    model = ViT(**config['model'])
+
+    if torch.cuda.is_available():
+        model = torch.nn.DataParallel(model, device_ids=list(range(n_gpus)))
+    model.to(device)
+
+    # Initialize data
+
+    train_dataset = TimeSeriesDataset(**config['train_dataset'])
+    validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
+
+    # Create initialization checkpoint
+
+    

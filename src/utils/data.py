@@ -11,17 +11,21 @@ from py2d.initialize import initialize_wavenumbers_rfft2
 from py2d.convert import Omega2Psi, Psi2UV
 
 class TimeSeriesDataset(Dataset):
-    def __init__(self, data_dir, frames, target_offset): 
+    def __init__(self, data_dir, frame_ranges, target_offset): 
         """
         Args:
             data_dir: Path to the data directory
-            frames: List of frame indices
+            frame_ranges: List of tuples indicating frame ranges
             target_offset: Offset for target frame indices
         """
 
         self.data_dir = data_dir
-        self.frames = frames
         self.target_offset = target_offset
+
+        # Expand frames into a list of indices
+
+        self.frames = []
+        for frame_range in frame_ranges: self.frames.extend(range(*frame_range))
 
         # Load mean/std for normalization
 
@@ -31,7 +35,7 @@ class TimeSeriesDataset(Dataset):
         self.normalize = Normalize(mean, std)
 
     def __len__(self):
-        return len(self.frames)
+        return len(self.frames) - self.target_offset
 
     def __getitem__(self, i: int):
 
@@ -73,25 +77,3 @@ class TimeSeriesDataset(Dataset):
         psi = Omega2Psi(omega, invKsq)
         u, v = Psi2UV(psi, Kx, Ky)
         return torch.tensor(np.stack([u, v]), dtype=torch.float32)
-
-def get_time_series_dataloader(data_dir, frames, target_offset, batch_size):
-    """
-    Get a dataloader for the turbulence dataset
-
-    Args:
-        data_dir: Path to the data directory
-        frames: List of frame indices
-        target_offset: Offset for target frame indices
-        batch_size: Batch size
-
-    Returns:
-        Dataset, Dataloader
-    """
-    dataset = TimeSeriesDataset(data_dir, frames, target_offset)
-    dataloader = DataLoader(
-        dataset,
-        batch_size=batch_size,
-        shuffle=True, 
-        pin_memory=True,
-    )
-    return dataset, dataloader

@@ -90,3 +90,13 @@ def sinusoidal_embedding_3d(d_embed: int, grid_size: tuple[int, int, int]):
 
     # Concatenate all dimensions
     return torch.cat([w_full, h_full, t_full], dim=1)  # (t*h*w, d_embed)
+
+if __name__ == '__main__':
+
+    # Test 2D sinusoidal embedding
+
+    d_embed = 128
+    h, w = 64, 64
+    x = sinusoidal_embedding_2d(d_embed, h, w)
+    print(f'2D sinusoidal embedding shape: {x.shape}')
+    

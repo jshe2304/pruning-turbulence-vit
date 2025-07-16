@@ -1,37 +1,54 @@
+import numpy as np
+
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader
 
-def train_one_epoch(model, dataloader, optimizer):
+def train_one_epoch(model, optimizer, device, train_dataloader, scheduler=None):
     """
-    Trains the model for one epoch. 
-    """
+    Train the model for one epoch minimizing the MSE loss.
 
-    # Training loop
+    Args:
+        model: The model to train
+        optimizer: The optimizer to use
+        device: The device to use
+        train_dataloader: The dataloader for the training data
+    """
 
     model.train()
-    for x, y in dataloader:
+    for img, target in train_dataloader:
         optimizer.zero_grad()
-        pred = model(x)
-        loss = nn.functional.mse_loss(pred, y)
+        pred = model(img.to(device))
+        loss = torch.nn.functional.mse_loss(pred, target.to(device))
         loss.backward()
         optimizer.step()
 
-def sample_loss(model, data_tensor, n=2048, device='cpu'):
+        if scheduler is not None: scheduler.step()
+
+def sample_loss(model, data_tensor, n_samples=4096, batch_size=128, device='cpu'):
     """
-    Samples a loss from the model. 
+    Evaluates the full validation loss. 
+
+    Args:
+        model: The model to evaluate. 
+        data_tensor: The dataset to evaluate on. 
+        n_samples: The number of samples to use for evaluation. 
+        batch_size: The batch size to use for evaluation. 
+        device: The device to use for evaluation. 
     """
 
-    # Generate batches of size n
-
-    indices = torch.randperm(len(data_tensor) - 1)[:n]
-
-    x, y = data_tensor[indices], data_tensor[indices + 1]
-    x, y = x.to(device), y.to(device)
-
-    # Evaluate loss
-
+    dataloader = DataLoader(data_tensor, batch_size=batch_size, shuffle=True)
+    n_batches = n_samples // batch_size
+    
     model.eval()
     with torch.no_grad():
-        pred = model(x)
-        loss = nn.functional.mse_loss(pred, y)
-        return loss.item()
+        
+        losses = []
+        for i, (img, target) in enumerate(dataloader):
+            if i >= n_batches: break
+
+            pred = model(img.to(device))
+            loss = nn.functional.mse_loss(pred, target.to(device))
+            losses.append(loss.item())
+
+        return np.mean(losses)

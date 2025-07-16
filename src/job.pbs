@@ -6,11 +6,11 @@
 #PBS -k eod
 #PBS -q main
 #PBS -l walltime=04:00:00
-#PBS -l select=1:ncpus=4:mpiprocs=2:mem=8GB:ngpus=2
+#PBS -l select=1:ncpus=16:mpiprocs=8:mem=8GB:ngpus=4
 #PBS -l gpu_type=a100
 
 module load conda
 module load cuda
-conda activate turb-env
+conda activate vit
 
-python train.py
+python pretrain.py config/pretrain/full.toml

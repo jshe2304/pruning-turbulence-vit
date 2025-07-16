@@ -24,7 +24,6 @@ class ViT(nn.Module):
         self.grid_shape = (img_shape[0] // patch_shape[0], img_shape[1] // patch_shape[1])
 
         self.patch_embed = PatchEmbed2D(
-            img_shape=img_shape, 
             patch_shape=patch_shape, 
             in_channels=in_channels,
             out_channels=d_embed,
@@ -44,7 +43,7 @@ class ViT(nn.Module):
             img_shape=img_shape, 
             patch_size=patch_shape[0], 
             in_channels=d_embed, 
-            out_channels=1, 
+            out_channels=in_channels, 
         )
 
     def get_parameters_to_prune(self):
@@ -73,11 +72,14 @@ class ViT(nn.Module):
             x: Output tensor of shape (B, C, H, W)
         """
 
+        B, *_ = x.shape
+
         x = self.patch_embed(x)
-        x += self.pos_embed
+        x += self.pos_embed.to(x.device)
         for block in self.transformer_blocks:
             x = block(x)
         x = self.norm(x)
+        x = x.reshape(B, -1, *self.grid_shape)
         x = self.upsample(x)
         return x
 
@@ -110,7 +112,6 @@ class EncoderDecoderViT(nn.Module):
         # Patch embedding
 
         self.patch_embed = PatchEmbed3D(
-            img_shape=img_shape, 
             patch_shape=patch_shape, 
             in_channels=in_channels, 
             out_channels=d_encoder_embed,

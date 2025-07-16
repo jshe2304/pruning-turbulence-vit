@@ -37,7 +37,6 @@ class MHSDPAttention(nn.Module):
         """
         if torch.all(self.head_mask): return self.QKV, self.out_proj
 
-
         QKV = self.QKV.reshape(self.d_embed, self.n_heads, 3 * self.d_attn)
         QKV = QKV[:, self.head_mask]
         QKV = QKV.reshape(self.d_embed, 3 * self.n_unpruned_heads * self.d_attn)
@@ -179,6 +178,6 @@ class TransformerBlock(nn.Module):
         Output:
             e: Updated embeddings of shape (n_batch, n_tokens, d_embed)
         """
-        e += self.attn(self.norm1(e))
-        e += self.mlp(self.norm2(e))
+        e = e + self.attn(self.norm1(e))
+        e = e + self.mlp(self.norm2(e))
         return e

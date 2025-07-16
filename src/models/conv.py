@@ -35,9 +35,17 @@ class SubPixelConv2D(nn.Module):
         out_channels (int): Number of output channels.
     """
 
-    def __init__(self, img_shape: tuple[int, int], patch_size: int, in_channels: int, out_channels: int):
+    def __init__(
+        self, 
+        img_shape: tuple[int, int], 
+        patch_size: int, 
+        in_channels: int, 
+        out_channels: int,
+    ):
         super().__init__()
+
         self.img_shape = img_shape
+
         self.conv = nn.Conv2d(
             in_channels, out_channels * patch_size ** 2, 
             kernel_size=3, stride=1, padding=1, 
@@ -73,6 +81,7 @@ class SubPixelConv2D(nn.Module):
         return output[:, :, padding_top: H - padding_bottom, padding_left: W - padding_right]
 
 class SubPixelConv3D(nn.Module):
+
     """
     Patch Embedding Recovery to 3D Image.
 
@@ -144,3 +153,19 @@ class SubPixelConv3D(nn.Module):
             padding_w0: W - padding_w1, 
             padding_h0: H - padding_h1
         ]
+
+if __name__ == '__main__':
+
+    # Test 2D subpixel conv
+
+    B, H, W, E = 32, 64, 64, 128
+    x = torch.randn(B, E, H, W)
+    
+    subpixel_conv = SubPixelConv2D(
+        img_shape=(256, 256), patch_size=4, 
+        in_channels=128, out_channels=2
+    )
+
+    x = subpixel_conv(x)
+    print(f'2D subpixel conv shape: {x.shape}')
+    
