@@ -5,12 +5,15 @@
 #PBS -j oe
 #PBS -k eod
 #PBS -q main
-#PBS -l walltime=04:00:00
+#PBS -M jshe@uchicago.edu
+#PBS -l walltime=08:00:00
 #PBS -l select=1:ncpus=16:mpiprocs=8:mem=8GB:ngpus=4
 #PBS -l gpu_type=a100
+
+cd /glade/u/home/jshen/pruning-turbulence-vit/src
 
 module load conda
 module load cuda
 conda activate vit
 
-python pretrain.py config/pretrain/full.toml
+torchrun --standalone --nnodes=1 --nproc-per-node=4 script_train.py ./config/train.toml

@@ -1,0 +1,60 @@
+================================================================================
+Rank 3 using device cuda:3Rank 2 using device cuda:2Rank 1 using device cuda:1
+
+
+[model]
+in_channels = 2
+d_embed = 128
+n_heads = 8
+n_layers = 8
+img_shape = [ 256, 256,]
+patch_shape = [ 4, 4,]
+
+[train_dataset]
+data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1"
+frame_ranges = [ [ 200000, 210000,], [ 995000, 1004997,],]
+target_offset = 3
+
+[validation_dataset]
+data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1"
+frame_ranges = [ [ 310000, 312000,],]
+target_offset = 3
+
+[training]
+learning_rate = 0.0005
+weight_decay = 1e-7
+warmup_start_factor = 0.001
+warmup_total_iters = 3
+plateau_factor = 0.2
+plateau_patience = 5
+epochs = 1000
+batch_size = 4
+checkpoint_period = 25
+output_dir = "/glade/derecho/scratch/jshen/turbulence_vit_logs/"
+
+================================================================================
+Rank 0 using device cuda:0
+Epoch 0: 563.0351867675781 seconds
+Epoch 0: 563.022185087204 seconds
+Epoch 0: 563.0422050952911 seconds
+Epoch 0: 563.0483243465424 seconds
+Compute losses: 157.1116545200348 seconds
+Compute losses: 157.12485480308533 seconds
+Compute losses: 157.13607144355774 seconds
+Compute losses: 157.13189697265625 seconds
+Epoch 1: 560.1415069103241 seconds
+Epoch 1: 560.1536846160889 seconds
+Epoch 1: 560.1522541046143 seconds
+Epoch 1: 560.1608531475067 seconds
+Compute losses: 157.25602555274963 seconds
+Compute losses: 157.28446316719055 seconds
+Compute losses: 157.26458597183228 seconds
+Compute losses: 157.26760935783386 seconds
+Epoch 2: 560.1409733295441 seconds
+Epoch 2: 560.1538631916046 seconds
+Epoch 2: 560.1369440555573 seconds
+Epoch 2: 560.1580605506897 seconds
+Compute losses: 157.2756326198578 seconds
+Compute losses: 157.2892246246338 seconds
+Compute losses: 157.29399728775024 seconds
+Compute losses: 157.31496000289917 seconds

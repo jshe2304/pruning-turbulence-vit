@@ -1,19 +1,19 @@
 [model]
 in_channels = 2
-d_embed = 96
-n_heads = 4
-n_layers = 4
+d_embed = 128
+n_heads = 8
+n_layers = 8
 img_shape = [ 256, 256,]
-patch_shape = [ 16, 16,]
+patch_shape = [ 4, 4,]
 
 [train_dataset]
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
-frame_ranges = [ [200000, 210001], [995000, 1004998], ]
+frame_ranges = [ [200000, 210000], [995000, 1004997], ]
 target_offset = 3
 
 [validation_dataset]
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
-frame_ranges = [ [310000, 312001], ]
+frame_ranges = [ [310000, 312000], ]
 target_offset = 3
 
 [training]
@@ -23,8 +23,7 @@ warmup_start_factor = 0.001
 warmup_total_iters = 3
 plateau_factor = 0.2
 plateau_patience = 5
-epochs = 4
+epochs = 1000
 batch_size = 4
 checkpoint_period = 25
-log_dir = '/glade/derecho/scratch/jshen/turbulence_vit_logs/'
-checkpoint_dir = '/glade/derecho/scratch/jshen/turbulence_vit_checkpoints/'
+output_dir = '/glade/derecho/scratch/jshen/turbulence_vit_logs/'

@@ -1,5 +1,5 @@
 """
-Vision Transformer pre-training script.
+Iterative global pruning script with reinitialization. 
 
 To run, pass in a path to a TOML config file as an argument. 
 The TOML should contain the following sections:
@@ -13,11 +13,13 @@ import sys
 import toml
 
 import torch
+from torch.optim import AdamW
+from torch.utils.data import DataLoader
 
 from models.vit import ViT
 
 from data.datasets import TimeSeriesDataset
-from train.pretrain import pretrain
+from trainers.prune_iterative import prune_iterative
 
 if __name__ == '__main__':
 
@@ -25,15 +27,11 @@ if __name__ == '__main__':
 
     config_path = sys.argv[1]
     config = toml.load(config_path)
-    print(toml.dumps(config))
 
     # Device
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     n_gpus = torch.cuda.device_count()
-
-    print(f'Using device: {device}')
-    print(f'GPUs: {n_gpus}')
 
     # Initialize model
 
@@ -48,10 +46,14 @@ if __name__ == '__main__':
     train_dataset = TimeSeriesDataset(**config['train_dataset'])
     validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
 
-    # Pretrain
+    # Load pretrained model
 
-    pretrain(
+    model.load_state_dict(torch.load(config['pretrained_model']))
+
+    # Iterative pruning
+
+    prune_iterative(
         model, device, 
         train_dataset, validation_dataset, 
-        **config['training']
+        **config['pruning']
     )
