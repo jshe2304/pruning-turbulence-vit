@@ -1,0 +1,64 @@
+{
+  "os":  "Linux-5.14.21-150400.24.81_12.0.75-cray_shasta_c-x86_64-with-glibc2.31",
+  "python":  "CPython 3.10.9",
+  "startedAt":  "2025-07-17T19:43:18.723778Z",
+  "args":  [
+    "./config/train.toml"
+  ],
+  "program":  "/glade/u/home/jshen/pruning-turbulence-vit/src/script_train.py",
+  "codePath":  "src/script_train.py",
+  "codePathLocal":  "script_train.py",
+  "git":  {
+    "remote":  "git@github.com:jshe2304/pruning-turbulence-vit.git",
+    "commit":  "dca053d2225c9d69e76ca6e372c140429b08b3ea"
+  },
+  "email":  "jshe2304@gmail.com",
+  "root":  "/glade/u/home/jshen/pruning-turbulence-vit/src",
+  "host":  "deg0015",
+  "executable":  "/glade/work/jshen/conda-envs/vit/bin/python3.10",
+  "cpu_count":  64,
+  "cpu_count_logical":  128,
+  "gpu":  "NVIDIA A100-SXM4-40GB",
+  "gpu_count":  4,
+  "disk":  {
+    "/":  {
+      "total":  "270160396288",
+      "used":  "920883200"
+    }
+  },
+  "memory":  {
+    "total":  "540320792576"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA A100-SXM4-40GB",
+      "memoryTotal":  "42949672960",
+      "cudaCores":  6912,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-ab7100a6-a73d-7219-1bc0-3af1ba233ef8"
+    },
+    {
+      "name":  "NVIDIA A100-SXM4-40GB",
+      "memoryTotal":  "42949672960",
+      "cudaCores":  6912,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-29680837-eb4e-ed99-c87b-d034fec9baa7"
+    },
+    {
+      "name":  "NVIDIA A100-SXM4-40GB",
+      "memoryTotal":  "42949672960",
+      "cudaCores":  6912,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-2e36ec8a-7848-1878-698f-e51abc25f457"
+    },
+    {
+      "name":  "NVIDIA A100-SXM4-40GB",
+      "memoryTotal":  "42949672960",
+      "cudaCores":  6912,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-63edce6e-dcb7-5369-3ce1-30d9bfdecd92"
+    }
+  ],
+  "cudaVersion":  "12.6",
+  "writerId":  "ai9xhrksux07kkbkafjbf3dqge3bsrdw"
+}

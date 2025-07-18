@@ -16,6 +16,7 @@ class ViT(nn.Module):
         n_layers: int, 
         img_shape: tuple[int, int], 
         patch_shape: tuple[int, int],
+        **kwargs,
     ):
         super().__init__()
 
@@ -63,6 +64,22 @@ class ViT(nn.Module):
             ]
             
         return parameters_to_prune
+
+    def n_unpruned_parameters(self):
+        """
+        Returns the number of unpruned parameters in the model. 
+        """
+
+        unpruned = 0
+        total = 0
+
+        for module in self.modules():
+            for buffer_name, buffer in module.named_buffers(recurse=False):
+                if buffer_name.endswith('_mask'):
+                    unpruned += int(buffer.sum().item())
+                    total += buffer.numel()
+
+        return unpruned, total
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """

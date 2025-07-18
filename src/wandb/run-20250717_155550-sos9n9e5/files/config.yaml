@@ -1,0 +1,110 @@
+_wandb:
+    value:
+        cli_version: 0.21.0
+        e:
+            klz296uqzgkxlbox0bs8ccx3924n21fi:
+                args:
+                    - ./config/train.toml
+                codePath: src/script_train_distributed.py
+                codePathLocal: script_train_distributed.py
+                cpu_count: 64
+                cpu_count_logical: 128
+                cudaVersion: "12.6"
+                disk:
+                    /:
+                        total: "270160396288"
+                        used: "914833408"
+                email: jshe2304@gmail.com
+                executable: /glade/work/jshen/conda-envs/vit/bin/python3.10
+                git:
+                    commit: dca053d2225c9d69e76ca6e372c140429b08b3ea
+                    remote: git@github.com:jshe2304/pruning-turbulence-vit.git
+                gpu: NVIDIA A100-SXM4-40GB
+                gpu_count: 4
+                gpu_nvidia:
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "42949672960"
+                      name: NVIDIA A100-SXM4-40GB
+                      uuid: GPU-9aee3721-4541-ab23-af70-07a6732c09ae
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "42949672960"
+                      name: NVIDIA A100-SXM4-40GB
+                      uuid: GPU-f0aceb06-f990-fd5b-1a44-6e446c8e4434
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "42949672960"
+                      name: NVIDIA A100-SXM4-40GB
+                      uuid: GPU-bf505f5b-7b14-14df-bb95-5efd0f89c828
+                    - architecture: Ampere
+                      cudaCores: 6912
+                      memoryTotal: "42949672960"
+                      name: NVIDIA A100-SXM4-40GB
+                      uuid: GPU-e51b7921-2874-1fdc-4b40-5406d9c9136b
+                host: deg0017
+                memory:
+                    total: "540320792576"
+                os: Linux-5.14.21-150400.24.81_12.0.75-cray_shasta_c-x86_64-with-glibc2.31
+                program: /glade/u/home/jshen/pruning-turbulence-vit/src/script_train_distributed.py
+                python: CPython 3.10.9
+                root: /glade/u/home/jshen/pruning-turbulence-vit/src
+                startedAt: "2025-07-17T21:55:50.888885Z"
+                writerId: klz296uqzgkxlbox0bs8ccx3924n21fi
+        m: []
+        python_version: 3.10.9
+        t:
+            "1":
+                - 1
+                - 12
+                - 41
+            "2":
+                - 1
+                - 12
+                - 41
+            "3":
+                - 16
+            "4": 3.10.9
+            "5": 0.21.0
+            "12": 0.21.0
+            "13": linux-x86_64
+model:
+    value:
+        d_embed: 128
+        img_shape:
+            - 256
+            - 256
+        in_channels: 2
+        n_heads: 8
+        n_layers: 8
+        patch_shape:
+            - 4
+            - 4
+train_dataset:
+    value:
+        data_dir: /glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1
+        frame_ranges:
+            - - 200000
+              - 210000
+            - - 995000
+              - 1004997
+        target_offset: 3
+training:
+    value:
+        batch_size: 8
+        checkpoint_period: 5
+        epochs: 1000
+        learning_rate: 0.0005
+        output_dir: /glade/derecho/scratch/jshen/pruning-turbulence-vit/20250717_155550
+        plateau_factor: 0.2
+        plateau_patience: 5
+        warmup_epochs: 3
+        warmup_start_factor: 0.001
+        weight_decay: 1e-07
+validation_dataset:
+    value:
+        data_dir: /glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1
+        frame_ranges:
+            - - 310000
+              - 312000
+        target_offset: 3
