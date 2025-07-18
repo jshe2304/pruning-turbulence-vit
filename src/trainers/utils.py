@@ -31,14 +31,14 @@ def train_one_epoch(
         if scheduler is not None: scheduler.step()
 
 @torch.no_grad()
-def sample_loss(model, data_tensor, n_samples=4096, batch_size=128, device='cpu'):
+def sample_loss(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
     """
     Estimates the loss of the model on a dataset. 
     No support for distributed inference, only single GPU/CPU. 
 
     Args:
         model: The model to evaluate. 
-        data_tensor: The dataset to evaluate on. 
+        dataset: The dataset to evaluate on. 
         n_samples: The number of samples to use for evaluation. 
         batch_size: The batch size to use for evaluation. 
         device: The device to use for evaluation. 
@@ -47,31 +47,31 @@ def sample_loss(model, data_tensor, n_samples=4096, batch_size=128, device='cpu'
     model.eval()
 
     dataloader = DataLoader(
-        data_tensor, batch_size=batch_size, shuffle=True, num_workers=4
+        dataset, batch_size=batch_size, shuffle=True, num_workers=4
     )
     
     total_loss, samples_processed = 0., 0
     for img, target in dataloader:
         if samples_processed >= n_samples: break
-
         this_batch_size = img.size(0)
 
         pred = model(img.to(device))
-        total_loss += F.mse_loss(pred, target.to(device), reduction='sum').item()
-
-        samples_processed += this_batch_size 
+        sample_loss = F.mse_loss(pred, target.to(device)).item()
+        batch_loss = sample_loss * this_batch_size
+        total_loss += batch_loss
+        samples_processed += this_batch_size
 
     return total_loss / samples_processed
 
 @torch.no_grad()
-def sample_loss_distributed(model, data_tensor, n_samples=4096, batch_size=128, device='cpu'):
+def sample_loss_distributed(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
     """
     Estimates the loss of the model on a dataset. 
     Supports distributed inference. 
 
     Args:
         model: The model to evaluate. 
-        data_tensor: The dataset to evaluate on. 
+        dataset: The dataset to evaluate on. 
         n_samples: The number of samples to use for evaluation. 
         batch_size: The batch size to use for evaluation. 
         device: The device to use for evaluation. 
@@ -79,9 +79,9 @@ def sample_loss_distributed(model, data_tensor, n_samples=4096, batch_size=128, 
 
     model.eval()
 
-    sampler = DistributedSampler(data_tensor, shuffle=True)
+    sampler = DistributedSampler(dataset, shuffle=True)
     dataloader = DataLoader(
-        data_tensor, batch_size=batch_size, sampler=sampler, num_workers=4
+        dataset, batch_size=batch_size, sampler=sampler, num_workers=4
     )
     
     total_loss, samples_processed = 0., 0
@@ -91,15 +91,15 @@ def sample_loss_distributed(model, data_tensor, n_samples=4096, batch_size=128, 
         this_batch_size = img.size(0)
 
         pred = model(img.to(device))
-        total_loss += F.mse_loss(
-            pred, target.to(device), 
-            reduction='sum'
-        ).item()
+        sample_loss = F.mse_loss(pred, target.to(device)).item()
+        batch_loss = sample_loss * this_batch_size
+        total_loss += batch_loss
 
         samples_processed += this_batch_size 
 
-    total_loss = torch.tensor(total_loss, device=device)
-    dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
-    total_loss = total_loss.item()
+    mean_loss = total_loss / samples_processed
+    mean_loss = torch.tensor(mean_loss, device=device)
+    dist.all_reduce(mean_loss, op=dist.ReduceOp.AVG)
+    mean_loss = mean_loss.item()
 
-    return total_loss / samples_processed
+    return mean_loss

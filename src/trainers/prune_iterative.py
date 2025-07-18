@@ -23,15 +23,9 @@ def prune_iterative(
         **finetune_config: Finetuning configuration (see `train.py`)
     """
 
+    total_parameters = model.n_parameters()
+
     for i in range(n_prune_iterations):
-
-        # Log
-
-        unpruned_parameters, _ = model.n_unpruned_parameters()
-        if logger is not None:
-            logger.log({
-                "unpruned_parameters": unpruned_parameters,
-            })
 
         # Prune
 
@@ -40,6 +34,19 @@ def prune_iterative(
             pruning_method=prune.L1Unstructured,
             amount=prune_amount, 
         )
+
+        # Logging
+
+        pruned_parameters = model.n_pruned_parameters()
+        unpruned_parameters = total_parameters - pruned_parameters
+        if logger is not None:
+            logger.log(
+                {
+                    "unpruned_parameters": unpruned_parameters,
+                    "fraction_unpruned": unpruned_parameters / total_parameters,
+                },
+                step=i * finetune_config['epochs']
+            )
 
         # Finetune
 

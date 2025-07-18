@@ -1,7 +1,0 @@
-wandb: Currently logged in as: jshe (jshe-university-of-chicago) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
-wandb: Tracking run with wandb version 0.21.0
-wandb: Run data is saved locally in /glade/u/home/jshen/pruning-turbulence-vit/src/wandb/run-20250718_110341-9b9xtavb
-wandb: Run `wandb offline` to turn off syncing.
-wandb: Syncing run vague-resonance-1
-wandb: ⭐️ View project at https://wandb.ai/jshe-university-of-chicago/turbulence-vit-prune
-wandb: 🚀 View run at https://wandb.ai/jshe-university-of-chicago/turbulence-vit-prune/runs/9b9xtavb

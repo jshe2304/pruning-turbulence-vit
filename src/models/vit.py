@@ -65,21 +65,24 @@ class ViT(nn.Module):
             
         return parameters_to_prune
 
-    def n_unpruned_parameters(self):
+    def n_parameters(self):
+        """
+        Returns the number of parameters in the model. 
+        """
+        return sum(p.numel() for p in self.parameters())
+
+    def n_pruned_parameters(self):
         """
         Returns the number of unpruned parameters in the model. 
         """
 
-        unpruned = 0
-        total = 0
-
+        pruned = 0
         for module in self.modules():
             for buffer_name, buffer in module.named_buffers(recurse=False):
                 if buffer_name.endswith('_mask'):
-                    unpruned += int(buffer.sum().item())
-                    total += buffer.numel()
+                    pruned += int((buffer == 0).sum().item())
 
-        return unpruned, total
+        return pruned
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
