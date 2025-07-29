@@ -1,0 +1,14 @@
+#!/bin/bash -l
+#PBS -l select=1:ncpus=12:ngpus=1
+#PBS -q main
+#PBS -l walltime=00:30:00
+#PBS -A UCHI0014
+#PBS -m abe
+#PBS -j oe
+
+cd /glade/u/home/jshen/pruning-turbulence-vit/src
+
+module load conda
+conda activate vit
+
+python short_analysis.py ./config/analysis/short_analysis.yaml

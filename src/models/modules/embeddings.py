@@ -37,7 +37,7 @@ class PatchEmbed3D(nn.Module):
     Patch Embedding module for 3D images. 
     """
 
-    def __init__(self, patch_shape, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, patch_shape):
         super().__init__()
 
         self.conv = nn.Conv3d(

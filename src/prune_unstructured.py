@@ -5,6 +5,7 @@ Does not support distributed training.
 
 To run, pass in a path to a TOML config file as an argument. 
 The TOML should contain the following sections:
+- 
 """
 
 import sys
@@ -15,10 +16,10 @@ from datetime import datetime
 
 import torch
 
-from models.vit import ViT
+from models.simple_vit import ViT
 
 from data.datasets import TimeSeriesDataset
-from trainers.prune_iterative import prune_iterative
+from trainers.prune_unstructured import prune_unstructured
 
 if __name__ == '__main__':
 
@@ -64,7 +65,7 @@ if __name__ == '__main__':
 
     # Train model
 
-    prune_iterative(
+    prune_unstructured(
         model, device, 
         train_dataset, validation_dataset, 
         **config['pruning'], 

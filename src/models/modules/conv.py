@@ -37,10 +37,10 @@ class SubPixelConv2D(nn.Module):
 
     def __init__(
         self, 
+        in_channels: int, 
+        out_channels: int, 
         img_shape: tuple[int, int], 
         patch_size: int, 
-        in_channels: int, 
-        out_channels: int,
     ):
         super().__init__()
 
@@ -81,78 +81,57 @@ class SubPixelConv2D(nn.Module):
         return output[:, :, padding_top: H - padding_bottom, padding_left: W - padding_right]
 
 class SubPixelConv3D(nn.Module):
-
     """
     Patch Embedding Recovery to 3D Image.
 
     Args:
         img_shape (tuple[int]): T, H, W
         patch_shape (tuple[int]): T, H, W
-        in_chans (int): Number of input channels.
-        out_chans (int): Number of output channels.
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
     """
-
-    def __init__(self, img_shape, patch_shape, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, img_shape, patch_shape):
         super().__init__()
-
+        self.img_shape = img_shape
+        self.patch_shape = patch_shape
         assert patch_shape[1] == patch_shape[2], 'mismatch'
-        patch_size = patch_shape[1]
-
-        # Initialize the convolutional layer
-        self.T, self.H, self.W = img_shape
-        self.conv = nn.Conv2d(
-            in_channels // 2, out_channels * patch_size ** 2, 
-            kernel_size=3, stride=1, padding=1, 
-            bias=False, padding_mode='circular'
-        )
+        self.in_chans_per_frame = in_channels // patch_shape[0]  # patch_size is tubelet size
+        self.conv = nn.Conv2d(self.in_chans_per_frame, out_channels*patch_shape[1]**2, kernel_size=3, stride=1, padding=1, bias=0, padding_mode='circular')
+        self.pixelshuffle = nn.PixelShuffle(patch_shape[1])
         self.conv.weight.data.copy_(initialize_icnr(
             self.conv.weight,   
             initializer=nn.init.kaiming_normal_,
-            upscale_factor=patch_size
+            upscale_factor=patch_shape[1]
         ))
 
-        # Initialize the pixel shuffle layer
-        self.pixel_shuffle = nn.PixelShuffle(patch_size)
-
     def forward(self, x: torch.Tensor):
+        # first, split in dimension
+        # print(x.shape)
+        x = x.reshape(x.shape[0], self.in_chans_per_frame, self.patch_shape[0], *x.shape[2:]).flatten(2, 3)[:, :, 0:self.img_shape[0]] # to make 13 vertical dims
+        #print(x.shape)
+        x = x.movedim(-3, 1).flatten(0, 1)
+        output = self.conv(x)
+        output = self.pixelshuffle(output)
+        #print(output.shape)
+        output = output.reshape(-1, self.img_size[0], *output.shape[1:]).movedim(1, -3)
 
-        # Manipulate input for conv layer
-        x = x.reshape(
-            x.shape[0], x.shape[1] // 2, 2, *x.shape[2:]
-        ) # B, C//2, 2, T, H, W
-        x = x.flatten(2, 3) # B, C//2, 2*T, H, W
-        x = x[:, :, 0:self.T] # B, C//2, T, H, W
-        x = x.movedim(-3, 1) # B, T, C//2, H, W
-        x = x.flatten(0, 1) # B*T, C//2, H, W
+        _, _, Pl, Lat, Lon = output.shape
 
-        # Apply conv layer
-        output = self.conv(x) # B*T, C*H*W, 1, 1
-        output = self.pixel_shuffle(output)
-        output = output.reshape(
-            -1, self.T, *output.shape[1:]
-        ).movedim(1, -3)
+        pl_pad = Pl - self.img_shape[0]
+        lat_pad = Lat - self.img_shape[1]
+        lon_pad = Lon - self.img_shape[2]
 
-        _, _, T, W, H = output.shape
+        padding_front = pl_pad // 2
+        padding_back = pl_pad - padding_front
 
-        t_pad = T - self.T
-        w_pad = W - self.W
-        h_pad = H - self.H
+        padding_top = lat_pad // 2
+        padding_bottom = lat_pad - padding_top
 
-        padding_t0 = t_pad // 2
-        padding_t1 = t_pad - padding_t0
+        padding_left = lon_pad // 2
+        padding_right = lon_pad - padding_left
 
-        padding_w0 = w_pad // 2
-        padding_w1 = w_pad - padding_w0
-
-        padding_h0 = h_pad // 2
-        padding_h1 = h_pad - padding_h0
-
-        return output[
-            :, :, 
-            padding_t0: T - padding_t1,
-            padding_w0: W - padding_w1, 
-            padding_h0: H - padding_h1
-        ]
+        return output[:, :, padding_front: Pl - padding_back,
+               padding_top: Lat - padding_bottom, padding_left: Lon - padding_right]
 
 if __name__ == '__main__':
 

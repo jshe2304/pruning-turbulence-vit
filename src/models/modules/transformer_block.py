@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from .attention import MHSDPAttention
+from .attention import Attention
 from .mlp import MLP
 
 class TransformerBlock(nn.Module):
@@ -12,7 +12,7 @@ class TransformerBlock(nn.Module):
         super().__init__()
 
         self.norm1 = nn.LayerNorm(d_embed)
-        self.attn = MHSDPAttention(d_embed, n_heads)
+        self.attn = Attention(d_embed, n_heads)
 
         self.norm2 = nn.LayerNorm(d_embed)
         self.mlp = MLP(d_embed, expansion_factor=4, dropout=dropout)

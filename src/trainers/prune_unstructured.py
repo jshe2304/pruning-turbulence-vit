@@ -1,8 +1,10 @@
+import os
+import torch
 import torch.nn.utils.prune as prune
 
-from .train import train
+from .finetune import finetune
 
-def prune_iterative(
+def prune_unstructured(
     model, device, 
     train_dataset, validation_dataset, 
     n_prune_iterations, prune_amount,
@@ -10,7 +12,7 @@ def prune_iterative(
     **finetune_config,
     ):
     """
-    Prune the model iteratively. 
+    Prune the model using unstructured pruning. 
 
     Args:
         model: The model to prune
@@ -23,8 +25,14 @@ def prune_iterative(
         **finetune_config: Finetuning configuration (see `train.py`)
     """
 
-    total_parameters = model.n_parameters()
+    # Create pruned models directory
 
+    checkpoint_dir = os.path.join(finetune_config['output_dir'], 'pruned_models')
+    os.makedirs(checkpoint_dir, exist_ok=True)
+
+    # Iterative pruning
+
+    total_parameters = model.n_parameters()
     for i in range(n_prune_iterations):
 
         # Prune
@@ -50,9 +58,16 @@ def prune_iterative(
 
         # Finetune
 
-        train(
+        finetune(
             model, device, 
             train_dataset, validation_dataset, 
             **finetune_config,
             logger=logger
+        )
+
+        # Save model
+
+        torch.save(
+            model.state_dict(), 
+            os.path.join(checkpoint_dir, f'iteration_{i}.pt')
         )

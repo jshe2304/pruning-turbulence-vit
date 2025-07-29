@@ -19,9 +19,9 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from models.vit import ViT
+from models.vision_transformer import ViT
 
-from data.datasets import TimeSeriesDataset
+from data.dataloaders import TurbulenceDataset, TurbulenceMultiDataset
 from trainers.train import train_distributed
 
 if __name__ == '__main__':
@@ -39,10 +39,6 @@ if __name__ == '__main__':
     device = torch.device(f"cuda:{local_rank}")
     torch.cuda.set_device(device)
 
-    # Adjust batch size for distributed training
-
-    config['training']['batch_size'] //= world_size
-
     # Make output directory (only rank 0 process)
 
     if local_rank == 0:
@@ -50,6 +46,10 @@ if __name__ == '__main__':
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_dir = os.path.join(output_dir, timestamp)
         config['training']['output_dir'] = output_dir
+
+    # Adjust batch size for distributed training
+
+    config['training']['batch_size'] //= world_size
 
     # Initialize wandb (only rank 0 process)
 
@@ -65,8 +65,8 @@ if __name__ == '__main__':
 
     # Initialize datasets
 
-    train_dataset = TimeSeriesDataset(**config['train_dataset'])
-    validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
+    train_dataset = TurbulenceMultiDataset(**config['train_dataset'])
+    validation_dataset = TurbulenceDataset(**config['validation_dataset'])
 
     # Train model
 

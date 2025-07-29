@@ -92,7 +92,11 @@ class ViT(nn.Module):
             x: Output tensor of shape (B, C, H, W)
         """
 
+        #print(f'x.shape: {x.shape}')
+
         B, *_ = x.shape
+
+        x = x.squeeze(2)
 
         x = self.patch_embed(x)
         x += self.pos_embed.to(x.device)
@@ -101,7 +105,4 @@ class ViT(nn.Module):
         x = self.norm(x)
         x = x.reshape(B, -1, *self.grid_shape)
         x = self.upsample(x)
-        return x
-
-        
-            
+        return x.unsqueeze(2)
