@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+
 from .metrics import get_rmse, get_acc, get_spectra
 from .rollout import n_step_rollout
 
@@ -58,10 +59,10 @@ def perform_short_analysis(model, test_dataset, climo_dataset, max_leadtime, n_e
 
         # Unnormalize
 
-        pred_u = (pred_u * test_dataset.input_std[0] + test_dataset.input_mean[0])
-        pred_v = (pred_v * test_dataset.input_std[1] + test_dataset.input_mean[1])
-        tar_u = (tar_u * test_dataset.label_std[0] + test_dataset.label_mean[0])
-        tar_v = (tar_v * test_dataset.label_std[1] + test_dataset.label_mean[1])
+        pred_u = (pred_u * test_dataset.std[0] + test_dataset.mean[0])
+        pred_v = (pred_v * test_dataset.std[1] + test_dataset.mean[1])
+        tar_u = (tar_u * test_dataset.std[0] + test_dataset.mean[0])
+        tar_v = (tar_v * test_dataset.std[1] + test_dataset.mean[1])
         
         rmse_u.append(get_rmse(tar_u, pred_u, climo=climo_u))
         rmse_u_per.append(get_rmse(tar_u, per_pred_u, climo=climo_u))

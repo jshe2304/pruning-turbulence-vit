@@ -2,6 +2,7 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.utils.prune as prune
 
 from einops import rearrange
 
@@ -10,7 +11,6 @@ from .legacy_modules.mlp import MLP
 from .legacy_modules.embeddings import PatchEmbed
 from .legacy_modules.positional_encodings import get_3d_sincos_pos_embed
 from .legacy_modules.conv import SubPixelConvICNR_3D
-
 
 class Block(nn.Module):
     def __init__(self, embed_dim, num_heads, mlp_ratio=4, qkv_bias=False, proj_bias=True):
@@ -115,7 +115,7 @@ class ViT(nn.Module):
         self.apply(self._init_weights)
 
     def n_parameters(self):
-        return sum(p.numel() for p in self.parameters())
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
     
     def n_pruned_parameters(self):
         """
@@ -272,3 +272,38 @@ class ViT(nn.Module):
         #pred = self.unpatchify(pred)
 
         return pred
+
+    def load_state_dict(self, state_dict, strict=True, *args, **kwargs):
+        """
+        Load a checkpoint into the model. 
+        Handles pruning buffers and distributed prefixes.
+
+        Args:
+            state_dict (dict)
+            strict (bool): Enforce keys in `state_dict` match the model's keys?
+            *args, **kwargs: Overflow
+        """
+
+        # Unwrap any nested 'model_state'
+        if 'model_state' in state_dict:
+            state_dict = state_dict['model_state']
+
+        # If there are pruning buffers, set up pruning
+        for key in list(state_dict):
+            if key.endswith('_orig') or key.endswith('_mask'):
+                prune.global_unstructured(
+                    self.get_parameters_to_prune(),
+                    pruning_method=prune.Identity
+                )
+                break
+
+        # Strip "module." prefix from distributed checkpoints
+
+        state_dict = {
+            k.replace("module.", ""): v
+            for k, v in state_dict.items()
+        }
+
+        # Delegate to parent implementation
+
+        super().load_state_dict(state_dict, strict=strict, *args, **kwargs)

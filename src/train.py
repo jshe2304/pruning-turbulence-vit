@@ -20,16 +20,10 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from models.vision_transformer import ViT
-
-from data.dataloaders import TurbulenceDataset, TurbulenceMultiDataset
+from data.datasets import TimeSeriesDataset
 from trainers.train import train_distributed
 
-if __name__ == '__main__':
-
-    # Load config
-
-    config_path = sys.argv[1]
-    config = toml.load(config_path)
+def main(config: dict):
 
     # Set up distributed training
 
@@ -47,16 +41,16 @@ if __name__ == '__main__':
         output_dir = os.path.join(output_dir, timestamp)
         config['training']['output_dir'] = output_dir
 
-    # Adjust batch size for distributed training
-
-    config['training']['batch_size'] //= world_size
-
     # Initialize wandb (only rank 0 process)
 
     logger = wandb.init(
         project="turbulence-vit-train",
         config=config,
     ) if local_rank == 0 else None
+
+    # Adjust batch size for distributed training
+
+    config['training']['batch_size'] //= world_size
 
     # Initialize model
 
@@ -65,8 +59,8 @@ if __name__ == '__main__':
 
     # Initialize datasets
 
-    train_dataset = TurbulenceMultiDataset(**config['train_dataset'])
-    validation_dataset = TurbulenceDataset(**config['validation_dataset'])
+    train_dataset = TimeSeriesDataset(**config['train_dataset'])
+    validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
 
     # Train model
 
@@ -83,3 +77,10 @@ if __name__ == '__main__':
         logger.finish()
 
     dist.destroy_process_group()
+
+if __name__ == '__main__':
+
+    config_path = sys.argv[1]
+    config = toml.load(config_path)
+
+    main(config)

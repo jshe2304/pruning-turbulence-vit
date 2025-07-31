@@ -1,5 +1,4 @@
 import torch.nn as nn
-from timm.models.layers import to_2tuple
 
 class PatchEmbed(nn.Module):
     """ Patch embedding: (B,C,T,H,W) -> (B,C,L) -> (B,L,C)
@@ -22,8 +21,8 @@ class PatchEmbed(nn.Module):
         bias=True,
     ):
         super().__init__()
-        img_size = to_2tuple(img_size)
-        patch_size = to_2tuple(patch_size)
+        img_size = (img_size, img_size)
+        patch_size = (patch_size, patch_size)
         self.img_size = img_size
         self.patch_size = patch_size
         self.num_frames = num_frames

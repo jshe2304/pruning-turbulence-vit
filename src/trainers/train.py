@@ -15,13 +15,13 @@ from torch.utils.data.distributed import DistributedSampler
 from .utils import train_one_epoch, sample_loss_distributed
 
 def train_distributed(
-    model, device, 
-    train_dataset, validation_dataset, 
-    learning_rate, weight_decay,
-    warmup_start_factor, warmup_epochs, plateau_factor, plateau_patience,
-    epochs, batch_size, 
-    checkpoint_period, output_dir, 
-    logger=None,
+    model, device, # Model
+    train_dataset, validation_dataset, # Data
+    epochs, batch_size, # Data loader
+    lr, weight_decay, # Optimizer
+    warmup_start_factor, warmup_epochs, # Warmup scheduler
+    plateau_factor, plateau_patience, # Plateau scheduler
+    output_dir, checkpoint_period=None, logger=None, # Logging
     **kwargs
     ):
     """
@@ -32,14 +32,14 @@ def train_distributed(
         device: The device to use
         train_dataset: The training dataset
         validation_dataset: The validation dataset
-        learning_rate: The learning rate
+        epochs: The number of epochs to train for
+        batch_size: The batch size to use
+        lr: The learning rate
         weight_decay: The weight decay
         warmup_start_factor: The start factor for the warmup phase
         warmup_epochs: The total number of epochs for the warmup phase
         plateau_factor: The factor for the plateau phase
         plateau_patience: The patience for the plateau phase
-        epochs: The number of epochs to train for
-        batch_size: The batch size to use
         checkpoint_period: How often to save the model (epochs)
         output_dir: The directory to save the logs and checkpoints
         logger: The wandb logger
@@ -63,7 +63,7 @@ def train_distributed(
 
     # Optimizer
 
-    optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
 
     # Schedulers
 

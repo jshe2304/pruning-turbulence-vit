@@ -12,67 +12,69 @@ import sys
 import toml
 import os
 import wandb
-from datetime import datetime
 
 import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
 
-from models.simple_vit import ViT
-
+from models.vision_transformer import ViT
 from data.datasets import TimeSeriesDataset
 from trainers.prune_unstructured import prune_unstructured
 
-if __name__ == '__main__':
+def main(config: dict):
 
-    # Load config
+    # Set up distributed training
 
-    config_path = sys.argv[1]
-    config = toml.load(config_path)
-
-    # Make output directory
-
-    output_dir = config['finetuning']['output_dir']
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = os.path.join(output_dir, timestamp)
-    config['finetuning']['output_dir'] = output_dir
+    dist.init_process_group(backend="nccl", init_method="env://")
+    local_rank = int(os.environ["LOCAL_RANK"])
+    world_size = int(os.environ["WORLD_SIZE"])
+    device = torch.device(f"cuda:{local_rank}")
+    torch.cuda.set_device(device)
 
     # Initialize wandb
 
-    logger = wandb.init(project="turbulence-vit-prune", config=config)
+    logger = wandb.init(
+        project="turbulence-vit-prune",
+        config=config,
+    ) if local_rank == 0 else None
+
+    # Adjust batch size for distributed training
+
+    config['finetuning']['batch_size'] //= world_size
 
     # Initialize model
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    model = ViT(**config['model'])
-
-    # Load checkpoint (may need to rename keys)
-
-    state_dict = torch.load(config['model']['checkpoint_path'], map_location=device)
-    try:
-        model.load_state_dict(state_dict)
-    except:
-        state_dict = {
-            k.replace("module.", ""): v
-            for k, v in state_dict.items()
-        }
-        model.load_state_dict(state_dict)
-    model.to(device)
+    model = ViT(**config['model']).to(device)
+    state_dict = torch.load(config['checkpoint_file'], map_location=device, weights_only=False)
+    model.load_state_dict(state_dict)
+    model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
     # Initialize datasets
 
     train_dataset = TimeSeriesDataset(**config['train_dataset'])
     validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
 
-    # Train model
+    # Prune model
 
     prune_unstructured(
         model, device, 
         train_dataset, validation_dataset, 
         **config['pruning'], 
         **config['finetuning'], 
+        output_dir=config['output_dir'],
         logger=logger
     )
 
     # Clean up
 
-    logger.finish()
+    if local_rank == 0 and logger is not None: 
+        logger.finish()
+
+    dist.destroy_process_group()
+
+if __name__ == '__main__':
+
+    config_path = sys.argv[1]
+    config = toml.load(config_path)
+
+    main(config)

@@ -1,5 +1,9 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/best.tar"
-output_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/metrics.npz"
+checkpoint_file = "/glade/derecho/scratch/jshen/2d-turbulence-vit/BASE/pruning_checkpoints/iteration_7.pt"
+# output_file = "/glade/derecho/scratch/jshen/2d-turbulence-vit/BASE/pruning_checkpoints/analyses/iteration_base_metrics.npz"
+output_file = "./metrics.npz"
+
+# checkpoint_dir = "/glade/derecho/scratch/jshen/2d-turbulence-vit/BASE/pruning_checkpoints/"
+# output_dir = "/glade/derecho/scratch/jshen/2d-turbulence-vit/BASE/pruning_checkpoints/analyses/"
 
 [model]
 img_size = 256
@@ -19,22 +23,18 @@ patch_recovery = "subpixel_conv"
 
 [test_dataset]
 data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
-file_range = [350000, 353599] # [test_start, test_start + (max_leadtime * (n_ensembles + 2) * target_step) - 1]
+frame_range = [350000, 353600]
 target_step = 3
 stride = 3
 num_frames = 2
-num_out_frames = 1
-train_tendencies = false
 
 [climo_dataset]
 data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
-file_range = [350000, 351000]
+frame_range = [350000, 351000]
 target_step = 1
 stride = 1
 num_frames = 1
-num_out_frames = 1
-train_tendencies = false
 
 [analysis]
-max_leadtime = 100 # number of training timesteps
+max_leadtime = 100
 n_ensembles = 10

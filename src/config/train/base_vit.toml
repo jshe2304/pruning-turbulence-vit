@@ -16,26 +16,20 @@ patch_recovery = 'subpixel_conv'
 
 [train_dataset]
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
-file_range = [ [200000, 210000], [995000, 1004997], ]
+frame_range = [ [200000, 210000], [995000, 1004997], ]
 target_step = 3
-train_tendencies = false
 stride = 1
 num_frames = 2
-num_out_frames = 1
-target_step_hist = 3
 
 [validation_dataset]
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
-file_range = [ [310000, 312000], ]
+frame_range = [ [310000, 312000], ]
 target_step = 3
-train_tendencies = false
 stride = 1
 num_frames = 2
-num_out_frames = 1
-target_step_hist = 3
 
 [training]
-learning_rate = 0.0005
+lr = 0.0005
 weight_decay = 1e-7
 warmup_start_factor = 0.001
 warmup_epochs = 3

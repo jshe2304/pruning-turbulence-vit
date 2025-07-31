@@ -8,16 +8,20 @@ patch_shape = [ 8, 8,]
 
 [train_dataset]
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
-frame_ranges = [ [200000, 210000], [995000, 1004997], ]
+frame_range = [ [200000, 210001], [995000, 1004997], ]
 target_offset = 3
+stride = 3
+num_frames = 1
 
 [validation_dataset]
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
-frame_ranges = [ [310000, 312000], ]
+frame_range = [ [310000, 312001], ]
 target_offset = 3
+stride = 3
+num_frames = 1
 
 [training]
-learning_rate = 0.0005
+lr = 0.0005
 weight_decay = 1e-7
 warmup_start_factor = 0.001
 warmup_epochs = 3
