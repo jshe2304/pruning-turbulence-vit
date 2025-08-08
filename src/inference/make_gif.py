@@ -1,12 +1,14 @@
-import torch
-from .rollout import n_step_rollout
+import os
 
 import imageio
 from io import BytesIO
 
 import matplotlib.pyplot as plt
 
+import torch
 from torch.utils.data import DataLoader
+
+from .rollout import n_step_rollout
 
 def make_gif(model, test_dataset, output_file, time_per_frame=0.01, device='cpu'):
 
@@ -65,4 +67,7 @@ def make_gif(model, test_dataset, output_file, time_per_frame=0.01, device='cpu'
         frames.append(imageio.imread(buf))
         buf.close()
 
+    # Make sure parent directory is created then save file
+
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
     imageio.mimsave(output_file, frames, duration=time_per_frame)

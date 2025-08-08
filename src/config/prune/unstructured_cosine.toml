@@ -1,5 +1,5 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/best.tar"
-output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_no_restarts/"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/model/best.tar"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_cosine_restarts/"
 
 [model]
 img_size = 256
@@ -32,13 +32,14 @@ stride = 1
 num_frames = 2
 
 [pruning]
-prune_schedule = [0.04, 0.08, 0.12, 0.12, 0.12, 0.12, 0.12, 0.12]
-epoch_schedule = [  24,   22,   24,   28,   32,   36,   40,   44]
+prune_schedule = [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
+epoch_schedule = [  64,   64,   64,   64,   96,   96,   96,   96,  128,  128,  128]
 
 [finetuning]
-restart_optimizer = false
+restart_optimizer = true
 batch_size = 16
 lr = 0.00002
 weight_decay = 1e-8
 warmup_start_factor = 0.01
-num_warmup_epochs = 2
+num_warmup_epochs = 1
+early_stop

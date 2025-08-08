@@ -1,5 +1,5 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/2d-turbulence-vit/BASE/best_ckpt.tar"
-output_file = "./iteration_base.gif"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_cosine_restarts/pruned_models/41.pt"
+output_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_cosine_restarts/gifs/41.gif"
 
 [model]
 img_size = 256
@@ -19,7 +19,7 @@ patch_recovery = "subpixel_conv"
 
 [test_dataset]
 data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
-frame_range = [350000, 350600] # [test_start, test_start + (n_frames * (n_ensembles + 2) * target_step)]
+frame_range = [350000, 351000] # [test_start, test_start + (n_frames * (n_ensembles + 2) * target_step)]
 target_step = 3
 stride = 3
 num_frames = 2

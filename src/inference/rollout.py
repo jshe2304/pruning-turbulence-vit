@@ -33,21 +33,21 @@ def single_step_rollout(model, ic, train_tendencies=False):
 
     with torch.no_grad():
         idx = torch.tensor([0], device=ic.device)
-        if train_tendencies:
-            # WARNING: if num_out_frames > 1, only top frame is kept in auto-regressive rollout
-            if ic.shape[2] > 1:
-                # Use index_select to prevent reducing along dim of size 1
-                pred = torch.index_select(ic, 2, index=idx) + torch.index_select(model(ic), 2, index=idx)
-                ic = torch.cat([pred, ic[:,:,:-1,:,:]], dim=2)
-            else:
-                pred = ic + torch.index_select(model(ic), 2, index=idx)
-                ic = pred
+        # if train_tendencies:
+        #     # WARNING: if num_out_frames > 1, only top frame is kept in auto-regressive rollout
+        #     if ic.shape[2] > 1:
+        #         # Use index_select to prevent reducing along dim of size 1
+        #         pred = torch.index_select(ic, 2, index=idx) + torch.index_select(model(ic), 2, index=idx)
+        #         ic = torch.cat([pred, ic[:,:,:-1,:,:]], dim=2)
+        #     else:
+        #         pred = ic + torch.index_select(model(ic), 2, index=idx)
+        #         ic = pred
+        # else:
+        if ic.shape[2] > 1:
+            pred = torch.index_select(model(ic), 2, index=idx)
+            ic = torch.cat([pred, ic[:,:,:-1,:,:]], dim=2)
         else:
-            if ic.shape[2] > 1:
-                pred = torch.index_select(model(ic), 2, index=idx)
-                ic = torch.cat([pred, ic[:,:,:-1,:,:]], dim=2)
-            else:
-                pred = torch.index_select(model(ic), 2, index=idx)
-                ic = pred
+            pred = torch.index_select(model(ic), 2, index=idx)
+            ic = pred
 
     return pred, ic

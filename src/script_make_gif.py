@@ -8,7 +8,7 @@ import torch
 from models.vision_transformer import ViT
 from data.datasets import TimeSeriesDataset
 
-from analysis.make_gif import make_gif
+from inference.make_gif import make_gif
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

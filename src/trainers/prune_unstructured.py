@@ -3,12 +3,13 @@ import torch
 import torch.nn.utils.prune as prune
 from torch.optim import AdamW
 
-from .finetune import cosine_finetune
+from .finetune import finetuners
 
 def prune_unstructured(
     model, device, 
     train_dataset, validation_dataset, 
     prune_schedule, epoch_schedule,
+    finetuner_type, 
     output_dir, logger=None,
     **finetune_config,
     ):
@@ -30,6 +31,7 @@ def prune_unstructured(
 
     # Create pruned models directory (only on rank 0)
 
+    checkpoint_dir = None
     if local_rank == 0:
         checkpoint_dir = os.path.join(output_dir, 'pruned_models')
         os.makedirs(checkpoint_dir, exist_ok=True)
@@ -48,6 +50,18 @@ def prune_unstructured(
             amount=p, 
         )
 
+        if local_rank == 0 and logger is not None:
+            pruned_parameters = model.module.n_pruned_parameters()
+            unpruned_parameters = total_parameters - pruned_parameters
+            proportion_remaining = unpruned_parameters / total_parameters
+            logger.log(
+                {
+                    "unpruned_parameters": unpruned_parameters, 
+                    "proportion_remaining": proportion_remaining,
+                }, 
+                step=epochs_completed
+            )
+
         # Optionally create persistent optimizer
 
         optimizer = None
@@ -55,39 +69,22 @@ def prune_unstructured(
             optimizer = AdamW(model.module.parameters(), lr=finetune_config['lr'], weight_decay=finetune_config['weight_decay'])
 
         # Finetune
-
-        cosine_finetune(
+        
+        epochs_completed += finetuners[finetuner_type](
             model, device, 
             train_dataset, validation_dataset, 
             **finetune_config, 
             optimizer=optimizer, 
             epochs=epochs, 
-            logger=logger,
+            logger=logger, 
+            output_dir=checkpoint_dir,
+            coast=(p == 0.)
         )
 
         # Logging
 
-        if local_rank == 0:
-
-            # Log losses to wandb
-
-            if logger is not None:
-                pruned_parameters = model.module.n_pruned_parameters()
-                unpruned_parameters = total_parameters - pruned_parameters
-                proportion_remaining = unpruned_parameters / total_parameters
-                logger.log(
-                    {
-                        "unpruned_parameters": unpruned_parameters, 
-                        "proportion_remaining": proportion_remaining,
-                    },
-                    step=epochs_completed
-                )
-
-            # Save model
-
+        if local_rank == 0 and p > 0:
             torch.save(
                 model.module.state_dict(), 
                 os.path.join(checkpoint_dir, f'{int(proportion_remaining * 100)}.pt')
             )
-
-        epochs_completed += epochs

@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from .metrics import get_rmse, get_acc, get_spectra
+from .short_metrics import get_rmse, get_acc, get_spectra
 from .rollout import n_step_rollout
 
 from torch.utils.data import DataLoader

@@ -1,7 +1,6 @@
 [model]
 img_size = 256
 patch_size = 4
-num_frames = 2
 tubelet_size = 2
 in_chans = 2
 encoder_embed_dim = 192
@@ -11,8 +10,9 @@ decoder_embed_dim = 96
 decoder_depth = 4
 decoder_num_heads = 4
 mlp_ratio = 4.0
+num_frames = 2
 num_out_frames = 1
-patch_recovery = 'subpixel_conv'
+patch_recovery = "subpixel_conv"
 
 [train_dataset]
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'

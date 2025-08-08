@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#PBS -A UCHI0014
+#PBS -j oe
+#PBS -k eod
+#PBS -q main
+#PBS -l walltime=04:00:00
+#PBS -l select=1:ncpus=16:mem=32GB
+
+cd /glade/u/home/jshen/pruning-turbulence-vit/src
+
+module load conda
+conda activate vit
+
+python script_long_analysis.py ./config/inference/long_analysis.toml

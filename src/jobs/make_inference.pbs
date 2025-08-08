@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #PBS -l select=1:ncpus=12:ngpus=1
 #PBS -q main
-#PBS -l walltime=00:30:00
+#PBS -l walltime=08:00:00
 #PBS -A UCHI0014
 #PBS -m abe
 #PBS -j oe
@@ -11,4 +11,4 @@ cd /glade/u/home/jshen/pruning-turbulence-vit/src
 module load conda
 conda activate vit
 
-python script_short_analysis.py ./config/inference/short_analysis.toml
+python script_make_inference.py ./config/inference/inference.toml
