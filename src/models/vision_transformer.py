@@ -6,11 +6,11 @@ import torch.nn.utils.prune as prune
 
 from einops import rearrange
 
-from .legacy_modules.attention import Attention
-from .legacy_modules.mlp import MLP
-from .legacy_modules.embeddings import PatchEmbed
-from .legacy_modules.positional_encodings import get_3d_sincos_pos_embed
-from .legacy_modules.conv import SubPixelConvICNR_3D
+from .modules.attention import Attention
+from .modules.mlp import MLP
+from .modules.embeddings import PatchEmbed
+from .modules.positional_encodings import get_3d_sincos_pos_embed
+from .modules.conv import SubPixelConvICNR_3D
 
 class Block(nn.Module):
     def __init__(self, embed_dim, num_heads, mlp_ratio=4, qkv_bias=False, proj_bias=True):
@@ -284,7 +284,13 @@ class ViT(nn.Module):
             *args, **kwargs: Overflow
         """
 
-        # Unwrap any nested 'model_state'
+        # Cache optimizer state
+
+        if 'optimizer_state' in state_dict:
+            self.optimizer_state = state_dict['optimizer_state']
+
+        # Extract model state
+
         if 'model_state' in state_dict:
             state_dict = state_dict['model_state']
 

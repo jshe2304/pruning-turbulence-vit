@@ -1,5 +1,5 @@
 """
-Vision Transformer pre-training script.
+Vision Transformer distillation script.
 
 To run, pass in a path to a TOML config file as an argument. 
 The TOML should contain the following sections:
@@ -21,7 +21,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from models.vision_transformer import ViT
 from data.datasets import TimeSeriesDataset
-from trainers.train import train
+from trainers.distill import distill
 
 def main(config: dict):
 
@@ -57,15 +57,22 @@ def main(config: dict):
     model = ViT(**config['model']).to(device)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
+    # Initialize teacher model
+
+    teacher = ViT(**config['teacher']).to(device)
+    state_dict = torch.load(config['teacher_checkpoint_file'], map_location=device, weights_only=False)
+    teacher.load_state_dict(state_dict)
+    teacher = DDP(teacher, device_ids=[local_rank], output_device=local_rank)
+
     # Initialize datasets
 
     train_dataset = TimeSeriesDataset(**config['train_dataset'])
     validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
 
-    # Train model
+    # Distill model
 
-    train(
-        model, device, 
+    distill(
+        model, teacher, device, 
         train_dataset, validation_dataset, 
         **config['training'], 
         logger=logger

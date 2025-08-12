@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 from .rollout import single_step_rollout
 
-def make_inference(model, dataset, inference_length, output_dir, device):
+def make_inference(model, dataset, inference_length, output_dir, chunk_size=1000, device='cpu'):
 
     # Make output directory
 
@@ -19,7 +19,7 @@ def make_inference(model, dataset, inference_length, output_dir, device):
     ic = input[0].unsqueeze(dim=0).to(device)
 
     # Emulate and save
-
+    chunk = []
     for i in range(inference_length):
         pred, ic = single_step_rollout(model, ic, train_tendencies=False)
 
@@ -29,5 +29,13 @@ def make_inference(model, dataset, inference_length, output_dir, device):
         pred[0,:] = (pred[0,:]  * dataset.std[0]) + dataset.mean[0]
         pred[1,:] = (pred[1,:]  * dataset.std[1]) + dataset.mean[1]
 
-        output_file = os.path.join(output_dir, f'{i}.npy')
-        np.save(output_file, pred)
+        chunk.append(pred)
+
+        if len(chunk) == chunk_size:
+            output_file = os.path.join(output_dir, f'{i - chunk_size + 1}.npy')
+            np.save(output_file, np.stack(chunk))
+            chunk = []
+
+    if len(chunk) > 0:
+        output_file = os.path.join(output_dir, f'{i - chunk_size + 1}.npy')
+        np.save(output_file, np.stack(chunk))

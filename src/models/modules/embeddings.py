@@ -1,77 +1,46 @@
-import torch
 import torch.nn as nn
 
-class PatchEmbed2D(nn.Module):
-    """
-    Patch Embedding module for 2D images. 
+class PatchEmbed(nn.Module):
+    """ Patch embedding: (B,C,T,H,W) -> (B,C,L) -> (B,L,C)
+    B: batch
+    C: channels
+    T: num frames (in time)
+    H,W: frame height width
     """
 
-    def __init__(self, patch_shape, in_channels, out_channels):
+    def __init__(
+        self,
+        img_size=224,
+        patch_size=16,
+        num_frames=1,
+        tubelet_size=1,
+        in_chans=1,
+        embed_dim=384,
+        norm_layer=None,
+        flatten=True,
+        bias=True,
+    ):
         super().__init__()
+        img_size = (img_size, img_size)
+        patch_size = (patch_size, patch_size)
+        self.img_size = img_size
+        self.patch_size = patch_size
+        self.num_frames = num_frames
+        self.tubelet_size = tubelet_size
+        self.grid_size = (num_frames // tubelet_size, img_size[0] // patch_size[0], img_size[1] // patch_size[1])
+        self.num_patches = self.grid_size[0] * self.grid_size[1] * self.grid_size[2]
+        self.flatten = flatten
 
-        self.conv = nn.Conv2d(
-            in_channels, out_channels,
-            kernel_size=patch_shape,
-            stride=patch_shape,
-        )
-        w = self.conv.weight.data
-        nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
-
-        self.norm = nn.LayerNorm(out_channels)
+        self.proj = nn.Conv3d(in_chans, embed_dim,
+                            kernel_size=(tubelet_size, patch_size[0], patch_size[1]),
+                            stride=(tubelet_size, patch_size[0], patch_size[1]),
+                            bias=bias)
+        self.norm = norm_layer(embed_dim) if norm_layer else nn.Identity()
 
     def forward(self, x):
-        """
-        Input:
-            x: Batched 2D images of shape (B, C, H, W)
-        Output:
-            x: Batched embeddings of shape (B, L, C)
-        """
-
-        x = self.conv(x)
-        x = x.flatten(2).transpose(1, 2)
+        B, C, T, H, W = x.shape
+        x = self.proj(x)
+        if self.flatten:
+            x = x.flatten(2).transpose(1, 2)    # B,C,T,H,W -> B,L,C
         x = self.norm(x)
         return x
-
-class PatchEmbed3D(nn.Module):
-    """
-    Patch Embedding module for 3D images. 
-    """
-
-    def __init__(self, in_channels, out_channels, patch_shape):
-        super().__init__()
-
-        self.conv = nn.Conv3d(
-            in_channels, out_channels,
-            kernel_size=patch_shape,
-            stride=patch_shape,
-        )
-        w = self.conv.weight.data
-        nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
-
-        self.norm = nn.LayerNorm(out_channels)
-
-    def forward(self, x):
-        """
-        Input:
-            x: Batched 3D/temporal images of shape (B, C, T, H, W)
-        Output:
-            x: Batched embeddings of shape (B, L, C)
-        """
-
-        x = self.conv(x)
-        x = x.flatten(2).transpose(1, 2)
-        x = self.norm(x)
-        return x
-
-if __name__ == '__main__':
-
-    # Test 2D patch embedding
-
-    B, C, H, W = 16, 2, 128, 128
-    x = torch.randn(B, C, H, W)
-
-    patch_embed = PatchEmbed2D(patch_shape=(4, 4), in_channels=2, out_channels=128)
-    print('Initialized 2D patch embedding.')
-    x = patch_embed(x)
-    print(f'2D patch embedding shape: {x.shape}')
-    

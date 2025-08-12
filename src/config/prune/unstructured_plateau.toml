@@ -1,5 +1,5 @@
 # checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/model/best.tar"
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models/69.pt"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models/last.tar"
 output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models_resume/"
 
 [model]
@@ -34,7 +34,7 @@ num_frames = 2
 
 [pruning]
 prune_schedule = [0.00, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
-epoch_schedule = [   4,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128]
+epoch_schedule = [ 128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128]
 
 [finetuning]
 finetuner_type = 'plateau'

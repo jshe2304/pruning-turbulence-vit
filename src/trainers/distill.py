@@ -7,25 +7,85 @@ Single-device and distributed training are implemented separately for simplicity
 import os
 
 import torch
+import torch.nn.functional as F
 from torch.optim import AdamW
 from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 
-from .utils import train_one_epoch, compute_loss
+from .utils import compute_loss
 
-def train(
-    model, device, # Model
+def activation_hook(out_dict, key):
+    def hook(module, input, output):
+        out_dict[key] = output
+    return hook
+
+def distill_one_epoch(
+    model, teacher, device, 
+    train_dataloader,
+    distill_weight, optimizer, scheduler=None, 
+    **kwargs
+    ):
+    """
+    Distill the model for one epoch minimizing the MSE loss.
+
+    Args:
+        model: The model to train
+        teacher: The teacher model
+        device: The device to use
+        train_dataloader: The dataloader for the training data
+        distill_weight: The weight for the distillation loss
+        optimizer: The optimizer to use
+        scheduler: The scheduler to use
+        **kwargs: Overflow arguments
+    """
+
+    # Register hooks
+
+    activations = {}
+    model.module.decoder_norm.register_forward_hook(activation_hook(activations, 'student'))
+    teacher.module.decoder_norm.register_forward_hook(activation_hook(activations, 'teacher'))
+
+    model.train()
+    teacher.eval()
+    for img, target in train_dataloader:
+        optimizer.zero_grad()
+    
+        # Student forward pass
+
+        pred = model(img.to(device))
+
+        # Teacher forward pass
+        with torch.no_grad():
+            teacher(img.to(device))
+
+        # Compute loss
+
+        label_loss = F.mse_loss(pred, target.to(device))
+
+        distill_loss = F.mse_loss(activations['student'], activations['teacher'])
+
+        # Backward pass
+
+        loss = label_loss + distill_weight * distill_loss
+        loss.backward()
+
+        optimizer.step()
+        if scheduler is not None:
+            scheduler.step()
+
+def distill(
+    model, teacher, device, # Model
     train_dataset, validation_dataset, # Data
     epochs, batch_size, # Data loader
-    lr, weight_decay, # Optimizer
+    lr, weight_decay, distill_weight, # Optimizer
     warmup_start_factor, warmup_epochs, # Warmup scheduler
     plateau_factor, plateau_patience, # Plateau scheduler
     output_dir, checkpoint_period=None, logger=None, # Logging
     **kwargs
     ):
     """
-    Train the model using distributed training. 
+    Train the model. 
 
     Args:
         model: The model to train
@@ -82,9 +142,10 @@ def train(
         # Train
 
         sampler.set_epoch(epoch)
-        train_one_epoch(
-            model, train_dataloader, device, 
-            optimizer, scheduler=warmup
+        distill_one_epoch(
+            model, teacher, device, 
+            train_dataloader, 
+            distill_weight, optimizer, scheduler=warmup
         )
 
         # Sample losses

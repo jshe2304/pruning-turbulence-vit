@@ -1,7 +1,7 @@
 [analysis]
-# inference_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/model/inferences'
-inference_dir = 
-output_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/model/long_analysis'
+# inference_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/inferences_chunked/"
+inference_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/inferences/48/"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/long_analysis/48/"
 img_size = 256
 
 analysis_length = 750000

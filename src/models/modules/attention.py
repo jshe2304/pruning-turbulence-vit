@@ -1,29 +1,39 @@
+import torch
 import torch.nn as nn
 
 class Attention(nn.Module):
-    def __init__(self, d_embed, n_heads) -> None:
-
+    def __init__(self, embed_dim, num_heads, qkv_bias=False, proj_bias=True):
         super().__init__()
-        assert d_embed % n_heads == 0
+        
+        assert embed_dim % num_heads == 0
 
-        self.n_heads = n_heads
-        self.attn_dim = d_embed // n_heads
+        self.embed_dim = embed_dim
+        self.num_heads = num_heads
+        self.attn_dim = embed_dim // num_heads
         self.scale = self.attn_dim ** -0.5
 
-        self.qkv = nn.Linear(d_embed, d_embed * 3, bias=False)
-        self.proj = nn.Linear(d_embed, d_embed, bias=False)
+        self.qkv = nn.Linear(embed_dim, embed_dim * 3, bias=qkv_bias)
+        self.proj = nn.Linear(embed_dim, embed_dim, bias=proj_bias)
 
     def forward(self, x):
 
-        batch_size, n_tokens, d_embed = x.shape
+        batch_size, n_tokens, embed_dim = x.shape
+
+        # Compute and separate Q, K, V matrices
 
         qkv = self.qkv(x)
-        qkv = qkv.reshape(batch_size, n_tokens, self.n_heads, 3 * self.attn_dim)
-        qkv = qkv.permute(0, 2, 1, 3)
-        q, k, v = qkv.chunk(3, dim=-1)
+        qkv = qkv.reshape(batch_size, n_tokens, 3, self.num_heads, self.attn_dim)
+        qkv = qkv.permute(2, 0, 3, 1, 4)
+        q, k, v = qkv.unbind(0)
 
-        residual = nn.functional.scaled_dot_product_attention(q, k, v)
-        residual = residual.permute(0, 2, 1, 3)
-        residual = residual.reshape(batch_size, n_tokens, self.n_heads * self.attn_dim)
+        # Attention calculation
+
+        x = nn.functional.scaled_dot_product_attention(q, k, v,)
+
+        # Up projection back into embedding space
+
+        x = x.transpose(1, 2)
+        x = x.reshape(batch_size, n_tokens, embed_dim)
+        x = self.proj(x)
         
-        return self.proj(residual)
+        return x

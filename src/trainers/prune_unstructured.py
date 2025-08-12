@@ -38,9 +38,7 @@ def prune_unstructured(
 
     # Iterative pruning
 
-    total_parameters = model.module.n_parameters()
-    epochs_completed = 0
-    for p, epochs in zip(prune_schedule, epoch_schedule):
+    for iteration, (p, epochs) in enumerate(zip(prune_schedule, epoch_schedule)):
 
         # Prune
 
@@ -50,31 +48,25 @@ def prune_unstructured(
             amount=p, 
         )
 
-        if local_rank == 0 and logger is not None:
-            pruned_parameters = model.module.n_pruned_parameters()
-            unpruned_parameters = total_parameters - pruned_parameters
-            proportion_remaining = unpruned_parameters / total_parameters
-            logger.log(
-                {
-                    "unpruned_parameters": unpruned_parameters, 
-                    "proportion_remaining": proportion_remaining,
-                }, 
-                step=epochs_completed
-            )
+        # Load optimizer state from previous run (if any)
 
-        # Optionally create persistent optimizer
+        if iteration == 0:
+            optimizer_state = getattr(model.module, 'optimizer_state', None)
+            delattr(model.module, 'optimizer_state')
+            print('Loaded optimizer state.')
 
-        optimizer = None
-        if not finetune_config['restart_optimizer']:
-            optimizer = AdamW(model.module.parameters(), lr=finetune_config['lr'], weight_decay=finetune_config['weight_decay'])
+        # Optionally restart optimizer
 
+        if finetune_config['restart_optimizer'] and p > 0:
+            optimizer_state = None
+        
         # Finetune
         
-        epochs_completed += finetuners[finetuner_type](
+        optimizer_state = finetuners[finetuner_type](
             model, device, 
             train_dataset, validation_dataset, 
             **finetune_config, 
-            optimizer=optimizer, 
+            optimizer_state=optimizer_state, 
             epochs=epochs, 
             logger=logger, 
             output_dir=checkpoint_dir,
@@ -83,8 +75,16 @@ def prune_unstructured(
 
         # Logging
 
-        if local_rank == 0 and p > 0:
+        if local_rank == 0:
+
+            total_parameters = model.module.n_parameters()
+            pruned_parameters = model.module.n_pruned_parameters()
+            proportion_remaining = 1 - pruned_parameters / total_parameters
+
             torch.save(
-                model.module.state_dict(), 
-                os.path.join(checkpoint_dir, f'{int(proportion_remaining * 100)}.pt')
+                {
+                    'model_state': model.module.state_dict(), 
+                    'optimizer_state': optimizer_state
+                }, 
+                os.path.join(checkpoint_dir, f'{int(100 * proportion_remaining)}.tar')
             )

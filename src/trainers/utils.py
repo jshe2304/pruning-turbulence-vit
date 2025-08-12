@@ -27,46 +27,12 @@ def train_one_epoch(
         loss = F.mse_loss(pred, target.to(device))
         loss.backward()
         optimizer.step()
-
         if scheduler is not None: scheduler.step()
 
 @torch.no_grad()
-def sample_loss(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
+def compute_loss(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
     """
-    Estimates the loss of the model on a dataset. 
-    No support for distributed inference, only single GPU/CPU. 
-
-    Args:
-        model: The model to evaluate. 
-        dataset: The dataset to evaluate on. 
-        n_samples: The number of samples to use for evaluation. 
-        batch_size: The batch size to use for evaluation. 
-        device: The device to use for evaluation. 
-    """
-
-    model.eval()
-
-    dataloader = DataLoader(
-        dataset, batch_size=batch_size, shuffle=True, num_workers=4
-    )
-    
-    total_loss, samples_processed = 0., 0
-    for img, target in dataloader:
-        if samples_processed >= n_samples: break
-        this_batch_size = img.size(0)
-
-        pred = model(img.to(device))
-        sample_loss = F.mse_loss(pred, target.to(device)).item()
-        batch_loss = sample_loss * this_batch_size
-        total_loss += batch_loss
-        samples_processed += this_batch_size
-
-    return total_loss / samples_processed
-
-@torch.no_grad()
-def sample_loss_distributed(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
-    """
-    Estimates the loss of the model on a dataset. 
+    Compute the loss of the model on a dataset. 
     Supports distributed inference. 
 
     Args:

@@ -59,34 +59,25 @@ def get_mat_files_in_range(data_dir, file_range):
     filtered_files.sort(key=lambda x: int(os.path.splitext(x)[0]))
     return filtered_files
 
-def frame_generator(dataset, files, save_dir, data_dir, Kx, Ky, invKsq):
+def frame_generator(files, inference_dir, Kx, Ky):
     """
     Yields (U, V, Omega) one timestep at a time.
     - For 'emulate', each file is a .npy chunk of shape (N_chunk, 2, H, W)
     - For 'train'/'truth', each file is a .mat with Omega
     """
     for fname in files:
-        if dataset == "emulate":
-            # chunk = np.load(os.path.join(save_dir, fname))   # only this chunk in memory
-            # # each frame = [C, H, W]
-            # for frame in chunk:  
-            #     print(frame.shape)
-            #     U, V = frame[0], frame[1]
-            #     print(U.shape)
-            #     Omega = UV2Omega(U.T, V.T, Kx, Ky, spectral=False).T
-            #     yield U.astype(np.float32), V.astype(np.float32), Omega.astype(np.float32)
-            frame = np.load(os.path.join(save_dir, fname))
-            U, V = frame[0], frame[1]
+        chunk = np.load(os.path.join(inference_dir, fname))   # only this chunk in memory
+
+        if chunk.ndim == 3:
+            U, V = chunk[0], chunk[1]
             Omega = UV2Omega(U.T, V.T, Kx, Ky, spectral=False).T
             yield U.astype(np.float32), V.astype(np.float32), Omega.astype(np.float32)
-
-        else:  # 'train' or 'truth'
-            mat = loadmat(os.path.join(data_dir, "data", fname))
-            Omega = mat["Omega"].T.astype(np.float32)
-            U_t, V_t = Omega2UV(Omega.T, Kx, Ky, invKsq, spectral=False)
-            U, V = U_t.T.astype(np.float32), V_t.T.astype(np.float32)
-            yield U, V, Omega.astype(np.float32)
-
+        elif chunk.ndim == 4:
+            for frame in chunk:
+                U, V = frame[0], frame[1]
+                Omega = UV2Omega(U.T, V.T, Kx, Ky, spectral=False).T
+                yield U.astype(np.float32), V.astype(np.float32), Omega.astype(np.float32)
+        
 def get_npy_files(folder_path):
     # List all .npy files in the folder
     npy_files = [file for file in os.listdir(folder_path) if file.endswith('.npy')]

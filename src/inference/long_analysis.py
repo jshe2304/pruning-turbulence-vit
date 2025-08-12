@@ -62,7 +62,7 @@ def perform_long_analysis(
     # Data predicted by the emualtor
     files = get_npy_files(inference_dir)
     print(f"Number of saved predicted .npy files: {len(files)}")
-    output_dir_save = os.path.join(output_dir, 'emulate')
+    output_dir_save = os.path.join(output_dir)
 
     # Loading climatology for reurn period anomaly calculation
     if return_period_anomaly:
@@ -97,11 +97,9 @@ def perform_long_analysis(
     # initialize all your accumulators here…
     total_files_analyzed = 0
 
-    for fname in files:
-        frame = np.load(os.path.join(inference_dir, fname))
-        U, V = frame[0], frame[1]
-        Omega = UV2Omega(U.T, V.T, Kx, Ky, spectral=False).T
-        U, V, Omega = U.astype(np.float32), V.astype(np.float32), Omega.astype(np.float32)
+    frames = frame_generator(files, inference_dir, Kx, Ky)
+
+    for U, V, Omega in frames:
 
         if total_files_analyzed >= analysis_length:
             print('break after analyzing # files ', total_files_analyzed)
@@ -110,11 +108,13 @@ def perform_long_analysis(
         total_files_analyzed += 1
 
         if temporal_mean:
+            print('Computing temporal mean...')
             U_mean_temp += U
             V_mean_temp += V
             Omega_mean_temp += Omega
 
         if spectra:
+            print('Computing spectra...')
 
             ## Angular Averaged Spectra
             U_abs_hat = np.sqrt(np.fft.fft2(U)*np.conj(np.fft.fft2(U)))
@@ -139,6 +139,7 @@ def perform_long_analysis(
             spectra_Omega_zonal_avg_arr.append(spectra_Omega_temp)
 
         if zonal_mean or zonal_eof_pc:
+            print('Computing zonal mean...')
             U_zonal_temp = np.mean(U, axis=1)
             V_zonal_temp = np.mean(V, axis=1)        
             Omega_zonal_temp = np.mean(Omega, axis=1)
@@ -147,11 +148,12 @@ def perform_long_analysis(
             Omega_zonal.append(Omega_zonal_temp)
 
         if div:
+            print('Computing divergence...')
             div_temp = divergence(U, V)
             div.append(np.mean(np.abs(div_temp)))
 
         if return_period:
-
+            print('Computing extremes...')
             U_max.append(np.max(U))
             U_min.append(np.min(U))
             V_max.append(np.max(V))
@@ -160,7 +162,7 @@ def perform_long_analysis(
             Omega_min.append(np.min(Omega))
 
         if return_period_anomaly:
-
+            print('Computing extremes of anomalies...')
             U_anom = U - U_sample_mean_climatology
             V_anom = V - V_sample_mean_climatology
             Omega_anom = Omega - Omega_sample_mean_climatology
@@ -175,13 +177,14 @@ def perform_long_analysis(
 
         # Calculating PDF will may need large memory
         if PDF_U:
+            print('Computing PDF of U...')
             U_arr.append(U)
 
         if PDF_Omega:
+            print('Computing PDF of Omega...')
             Omega_arr.append(Omega)
 
     if temporal_mean:
-
         U_mean = U_mean_temp/total_files_analyzed
         V_mean = V_mean_temp/total_files_analyzed
         Omega_mean = Omega_mean_temp/total_files_analyzed
@@ -194,7 +197,6 @@ def perform_long_analysis(
         )
 
     if spectra:
-
         spectra_U_angular_avg = np.mean(spectra_U_angular_avg_arr, axis=0)
         spectra_V_angular_avg = np.mean(spectra_V_angular_avg_arr, axis=0)
         spectra_Omega_angular_avg = np.mean(spectra_Omega_angular_avg_arr, axis=0)
