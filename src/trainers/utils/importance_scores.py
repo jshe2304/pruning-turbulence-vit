@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader, DistributedSampler
 
 def compute_importance_scores(model, dataset, importance_metric, device, **kwargs):
     """
-    Compute the importance scores for the model.
+    Router funciton to compute pruning importance scores using different metrics. 
     """
 
     if importance_metric == 'l1':
@@ -20,7 +20,8 @@ def compute_importance_scores(model, dataset, importance_metric, device, **kwarg
 
 def _compute_fisher_importance(model, dataset, device, batch_size=16, num_batches=8):
     """
-    Compute the importance scores for the model using the Fisher information.
+    Compute Fisher importance metric for pruning. 
+    Intended for execution in an initialized DDP environment. 
     """
 
     model.eval()
@@ -89,7 +90,8 @@ def _compute_fisher_importance(model, dataset, device, batch_size=16, num_batche
 
 def _compute_taylor_importance(model, dataset, device, batch_size=16, num_batches=8):
     """
-    Compute the importance scores for the model using the Taylor expansion.
+    Compute Taylor importance metric for pruning. 
+    Intended for execution in an initialized DDP environment. 
     """
 
     model.eval()
