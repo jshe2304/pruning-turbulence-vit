@@ -11,4 +11,4 @@ cd /glade/u/home/jshen/pruning-turbulence-vit/src
 module load conda
 conda activate vit
 
-python script_short_analysis.py ./config/inference/short_analysis.toml
+python script_short_analysis.py ${config}

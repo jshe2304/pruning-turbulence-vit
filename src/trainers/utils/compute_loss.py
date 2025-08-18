@@ -1,38 +1,12 @@
-import numpy as np
-
 import torch
 import torch.distributed as dist
 from torch.utils.data import DataLoader, DistributedSampler
 import torch.nn.functional as F
 
-def train_one_epoch(
-    model, train_dataloader, device, 
-    optimizer, scheduler=None, 
-    **kwargs
-    ):
-    """
-    Train the model for one epoch minimizing the MSE loss.
-
-    Args:
-        model: The model to train
-        optimizer: The optimizer to use
-        device: The device to use
-        train_dataloader: The dataloader for the training data
-    """
-
-    model.train()
-    for img, target in train_dataloader:
-        optimizer.zero_grad()
-        pred = model(img.to(device))
-        loss = F.mse_loss(pred, target.to(device))
-        loss.backward()
-        optimizer.step()
-        if scheduler is not None: scheduler.step()
-
 @torch.no_grad()
 def compute_loss(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
     """
-    Compute the loss of the model on a dataset. 
+    Compute the MSE loss of the model on a dataset. 
     Supports distributed inference. 
 
     Args:
@@ -45,9 +19,11 @@ def compute_loss(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
 
     model.eval()
 
-    sampler = DistributedSampler(dataset, shuffle=True)
+    sampler = DistributedSampler(dataset, shuffle=True) if dist.is_initialized() else None
+    shuffle = not dist.is_initialized()
     dataloader = DataLoader(
-        dataset, batch_size=batch_size, sampler=sampler, num_workers=4
+        dataset, batch_size=batch_size, sampler=sampler, shuffle=shuffle,
+        num_workers=4, pin_memory=True
     )
     
     total_loss, samples_processed = 0., 0
@@ -65,7 +41,7 @@ def compute_loss(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
 
     mean_loss = total_loss / samples_processed
     mean_loss = torch.tensor(mean_loss, device=device)
-    dist.all_reduce(mean_loss, op=dist.ReduceOp.AVG)
+    if sampler is not None: dist.all_reduce(mean_loss, op=dist.ReduceOp.AVG)
     mean_loss = mean_loss.item()
 
     return mean_loss

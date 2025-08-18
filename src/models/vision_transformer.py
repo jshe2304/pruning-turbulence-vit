@@ -130,36 +130,40 @@ class ViT(nn.Module):
 
         return pruned
 
-
-    def get_parameters_to_prune(self):
+    def get_parameters_to_prune(self, bias=False):
         to_prune = []
 
         for block in self.encoder_blocks:
             to_prune += [
                 (block.attn.qkv, 'weight'), 
                 (block.attn.proj, 'weight'), 
-                (block.attn.proj, 'bias'),
                 (block.mlp.fc1, 'weight'),
-                (block.mlp.fc1, 'bias'),
                 (block.mlp.fc2, 'weight'), 
-                (block.mlp.fc2, 'bias'), 
             ]
+            if bias:
+                to_prune += [
+                    (block.attn.proj, 'bias'),
+                    (block.mlp.fc1, 'bias'),
+                    (block.mlp.fc2, 'bias'),
+                ]
 
-        to_prune += [
-            (self.decoder_embed, 'weight'),
-            (self.decoder_embed, 'bias'),
-        ]
+        to_prune.append((self.decoder_embed, 'weight'))
+        if bias:
+            to_prune.append((self.decoder_embed, 'bias'))
 
         for block in self.decoder_blocks:
             to_prune += [
                 (block.attn.qkv, 'weight'), 
                 (block.attn.proj, 'weight'), 
-                (block.attn.proj, 'bias'),
                 (block.mlp.fc1, 'weight'),
-                (block.mlp.fc1, 'bias'),
                 (block.mlp.fc2, 'weight'), 
-                (block.mlp.fc2, 'bias'), 
             ]
+            if bias:
+                to_prune += [
+                    (block.attn.proj, 'bias'),
+                    (block.mlp.fc1, 'bias'),
+                    (block.mlp.fc2, 'bias'),
+                ]
         
         return to_prune
 
@@ -297,11 +301,10 @@ class ViT(nn.Module):
         # If there are pruning buffers, set up pruning
         for key in list(state_dict):
             if key.endswith('_orig') or key.endswith('_mask'):
-                prune.global_unstructured(
-                    self.get_parameters_to_prune(),
-                    pruning_method=prune.Identity
-                )
-                break
+                submodule_name, buffer_name = key.rsplit('.', 1)
+                param_name = buffer_name.rsplit('_', 1)[0]
+
+                prune.identity(self.get_submodule(submodule_name), param_name)
 
         # Strip "module." prefix from distributed checkpoints
 

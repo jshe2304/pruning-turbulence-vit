@@ -10,7 +10,6 @@ class Attention(nn.Module):
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.attn_dim = embed_dim // num_heads
-        self.scale = self.attn_dim ** -0.5
 
         self.qkv = nn.Linear(embed_dim, embed_dim * 3, bias=qkv_bias)
         self.proj = nn.Linear(embed_dim, embed_dim, bias=proj_bias)
@@ -28,12 +27,12 @@ class Attention(nn.Module):
 
         # Attention calculation
 
-        x = nn.functional.scaled_dot_product_attention(q, k, v,)
+        x = nn.functional.scaled_dot_product_attention(q, k, v)
 
-        # Up projection back into embedding space
+        # Project back to embedding space
 
         x = x.transpose(1, 2)
-        x = x.reshape(batch_size, n_tokens, embed_dim)
+        x = x.reshape(batch_size, n_tokens, -1)
         x = self.proj(x)
-        
+
         return x

@@ -1,8 +1,8 @@
-# checkpoint_file = "/glade/derecho/scratch/jshen/2d-turbulence-vit/BASE/pruning_checkpoints/iteration_7.pt"
-# output_file = "/glade/derecho/scratch/jshen/2d-turbulence-vit/BASE/pruning_checkpoints/analyses/iteration_base_metrics.npz"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models/30.tar"
+output_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/short_analysis/30_metrics.npz"
 
-checkpoint_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models"
-output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/short_analysis/"
+#checkpoint_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models/"
+#output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/short_analysis/"
 
 [model]
 img_size = 256

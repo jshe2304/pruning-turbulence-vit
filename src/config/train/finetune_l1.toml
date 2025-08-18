@@ -1,22 +1,6 @@
-teacher_checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/model/best.tar"
+checkpoint_file = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/model/best.tar'
 
 [model]
-img_size = 256
-patch_size = 4
-tubelet_size = 2
-in_chans = 2
-encoder_embed_dim = 96
-encoder_depth = 2
-encoder_num_heads = 4
-decoder_embed_dim = 96
-decoder_depth = 2
-decoder_num_heads = 4
-mlp_ratio = 4.0
-num_frames = 2
-num_out_frames = 1
-patch_recovery = "subpixel_conv"
-
-[teacher]
 img_size = 256
 patch_size = 4
 tubelet_size = 2
@@ -47,15 +31,15 @@ stride = 1
 num_frames = 2
 
 [training]
-lr = 0.0005
+lr = 0.0002
 weight_decay = 1e-7
 warmup_start_factor = 0.001
-warmup_epochs = 3
+num_warmup_epochs = 3
 plateau_factor = 0.2
-plateau_patience = 7
-epochs = 1000
+plateau_patience = 5
+early_stop_lr_threshold = 1e-6
+epochs = 200
 batch_size = 32
-checkpoint_period = 5
-distill_weight = 1
-decay_factor = 0.98
-output_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/train/'
+l1_lambda = 1e-7
+output_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/finetune_l1/'
+

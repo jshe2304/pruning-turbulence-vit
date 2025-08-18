@@ -1,5 +1,5 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models/48.tar"
-output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/inferences/48/"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_l1/pruned_models/25.tar"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_l1/inferences/25/"
 
 [model]
 img_size = 256

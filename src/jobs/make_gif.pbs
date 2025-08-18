@@ -11,4 +11,4 @@ cd /glade/u/home/jshen/pruning-turbulence-vit/src
 module load conda
 conda activate vit
 
-python script_make_gif.py ./config/inference/make_gif.toml
+python script_make_gif.py ${config}

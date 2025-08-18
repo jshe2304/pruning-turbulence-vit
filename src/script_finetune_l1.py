@@ -1,22 +1,20 @@
 """
-Vision Transformer iterative pruning script. 
-Here, we implement a prune-finetune-repeat loop on a pretrained model. 
-Does not support distributed training. 
+Vision Transformer L1 finetuning script.
 
-To run, pass in a path to a TOML config file as an argument. 
+To run, pass in a path to a TOML config file as an argument.
 The TOML should contain the following sections:
-- model
-- train_dataset
-- validation_dataset
-- pruning
-- finetuning
-- output_dir
+- model: The model config
+- training: The finetuning parameters including l1_lambda
+- train_dataset: The training dataset
+- validation_dataset: The validation dataset
+- checkpoint_file: Path to the pretrained model weights
 """
 
 import sys
 import toml
 import os
 import wandb
+from datetime import datetime
 
 import torch
 import torch.distributed as dist
@@ -24,63 +22,63 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from models.vision_transformer import ViT
 from data.datasets import TimeSeriesDataset
-from trainers.prune_unstructured import prune_unstructured
+from trainers.finetune_l1 import finetune_l1
+
 
 def main(config: dict):
 
     # Set up distributed training
-
     dist.init_process_group(backend="nccl", init_method="env://")
     local_rank = int(os.environ["LOCAL_RANK"])
     world_size = int(os.environ["WORLD_SIZE"])
     device = torch.device(f"cuda:{local_rank}")
     torch.cuda.set_device(device)
 
-    # Initialize wandb
+    # Make output directory (only rank 0 process)
+    if local_rank == 0:
+        output_dir = config['training']['output_dir']
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        output_dir = os.path.join(output_dir, timestamp)
+        config['training']['output_dir'] = output_dir
 
+    # Initialize wandb (only rank 0 process)
     logger = wandb.init(
-        project="turbulence-vit-prune",
-        group=config['pruning']['importance_metric'],
+        project="turbulence-vit-finetune-l1",
         config=config,
     ) if local_rank == 0 else None
 
     # Adjust batch size for distributed training
-
-    config['finetuning']['batch_size'] //= world_size
+    config['training']['batch_size'] //= world_size
 
     # Initialize model
-
     model = ViT(**config['model']).to(device)
     state_dict = torch.load(config['checkpoint_file'], map_location=device, weights_only=False)
     model.load_state_dict(state_dict)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
     # Initialize datasets
-
     train_dataset = TimeSeriesDataset(**config['train_dataset'])
     validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
 
-    # Prune model
-
-    prune_unstructured(
-        model, device, 
-        train_dataset, validation_dataset, 
-        **config['pruning'], 
-        **config['finetuning'], 
-        output_dir=config['output_dir'],
-        logger=logger
+    # Finetune with L1 regularization
+    finetune_l1(
+        model, device,
+        train_dataset, validation_dataset,
+        **config['training'],
+        logger=logger,
     )
 
     # Clean up
-
-    if local_rank == 0 and logger is not None: 
+    if local_rank == 0 and logger is not None:
         logger.finish()
 
     dist.destroy_process_group()
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     config_path = sys.argv[1]
     config = toml.load(config_path)
-
     main(config)
+
+
+

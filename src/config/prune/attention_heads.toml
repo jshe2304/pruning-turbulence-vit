@@ -1,6 +1,5 @@
-# checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/model/best.tar"
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models/last.tar"
-output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_plateau_early_stop/pruned_models_resume/"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_attention_heads/pruned_models/3.tar"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_attention_heads/resume/"
 
 [model]
 img_size = 256
@@ -33,17 +32,17 @@ stride = 1
 num_frames = 2
 
 [pruning]
-prune_schedule = [0.00, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
-epoch_schedule = [ 128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128]
+num_iterations=12
 
 [finetuning]
 finetuner_type = 'plateau'
 restart_optimizer = true
-batch_size = 16
+batch_size = 32
+epochs = 192
 lr = 0.00002
 weight_decay = 1e-6
 warmup_start_factor = 0.01
 num_warmup_epochs = 2
 plateau_factor = 0.2
 plateau_patience = 3
-early_stop_lr_threshold = 1e-7
+early_stop_lr_threshold = 2e-8

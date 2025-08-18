@@ -53,6 +53,9 @@ def perform_long_analysis(
         PC_autocorr_nlags: Number of lags for EOF principal-component autocorrelation.
     """
 
+    print("Starting long analysis...")
+    print('Div', div)
+
     Lx, Ly = 2*np.pi, 2*np.pi
     Nx = img_size
     Lx, Ly, X, Y, dx, dy = gridgen(Lx, Ly, Nx, Nx, INDEXING='ij')
@@ -85,7 +88,7 @@ def perform_long_analysis(
     Omega_mean_temp = np.zeros((Nx, Nx))
 
     U_zonal, V_zonal, Omega_zonal = [], [], []
-    div = []
+    divs = []
     U_max, U_min, V_max, V_min, Omega_max, Omega_min = [], [], [], [], [], []
     U_max_anom_arr, U_min_anom_arr, V_max_anom_arr, V_min_anom_arr, Omega_max_anom_arr, Omega_min_anom_arr = [], [], [], [], [], []
     spectra_U_angular_avg_arr, spectra_V_angular_avg_arr, spectra_Omega_angular_avg_arr = [], [], []
@@ -99,8 +102,13 @@ def perform_long_analysis(
 
     frames = frame_generator(files, inference_dir, Kx, Ky)
 
+    print("Looping through frames...")
+
     for U, V, Omega in frames:
 
+        if total_files_analyzed % 10000 == 0:
+            print('Frame', total_files_analyzed)
+        
         if total_files_analyzed >= analysis_length:
             print('break after analyzing # files ', total_files_analyzed)
             break
@@ -108,13 +116,11 @@ def perform_long_analysis(
         total_files_analyzed += 1
 
         if temporal_mean:
-            print('Computing temporal mean...')
             U_mean_temp += U
             V_mean_temp += V
             Omega_mean_temp += Omega
 
         if spectra:
-            print('Computing spectra...')
 
             ## Angular Averaged Spectra
             U_abs_hat = np.sqrt(np.fft.fft2(U)*np.conj(np.fft.fft2(U)))
@@ -139,21 +145,18 @@ def perform_long_analysis(
             spectra_Omega_zonal_avg_arr.append(spectra_Omega_temp)
 
         if zonal_mean or zonal_eof_pc:
-            print('Computing zonal mean...')
             U_zonal_temp = np.mean(U, axis=1)
             V_zonal_temp = np.mean(V, axis=1)        
             Omega_zonal_temp = np.mean(Omega, axis=1)
             U_zonal.append(U_zonal_temp)
             V_zonal.append(V_zonal_temp)
             Omega_zonal.append(Omega_zonal_temp)
-
+        
         if div:
-            print('Computing divergence...')
             div_temp = divergence(U, V)
-            div.append(np.mean(np.abs(div_temp)))
+            divs.append(np.mean(np.abs(div_temp)))
 
         if return_period:
-            print('Computing extremes...')
             U_max.append(np.max(U))
             U_min.append(np.min(U))
             V_max.append(np.max(V))
@@ -162,7 +165,6 @@ def perform_long_analysis(
             Omega_min.append(np.min(Omega))
 
         if return_period_anomaly:
-            print('Computing extremes of anomalies...')
             U_anom = U - U_sample_mean_climatology
             V_anom = V - V_sample_mean_climatology
             Omega_anom = Omega - Omega_sample_mean_climatology
@@ -177,11 +179,9 @@ def perform_long_analysis(
 
         # Calculating PDF will may need large memory
         if PDF_U:
-            print('Computing PDF of U...')
             U_arr.append(U)
 
         if PDF_Omega:
-            print('Computing PDF of Omega...')
             Omega_arr.append(Omega)
 
     if temporal_mean:
@@ -275,8 +275,8 @@ def perform_long_analysis(
         )
 
     if div:
-        div = np.array(div, dtype=np.float32)
-        np.save(os.path.join(output_dir_save, 'div'), div)
+        divs = np.array(divs, dtype=np.float32)
+        np.save(os.path.join(output_dir_save, 'div'), divs)
 
     if return_period:
         np.savez(

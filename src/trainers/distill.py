@@ -78,7 +78,7 @@ def distill(
     model, teacher, device, # Model
     train_dataset, validation_dataset, # Data
     epochs, batch_size, # Data loader
-    lr, weight_decay, distill_weight, # Optimizer
+    lr, weight_decay, distill_weight, decay_factor, # Optimizer
     warmup_start_factor, warmup_epochs, # Warmup scheduler
     plateau_factor, plateau_patience, # Plateau scheduler
     output_dir, checkpoint_period=None, logger=None, # Logging
@@ -145,7 +145,7 @@ def distill(
         distill_one_epoch(
             model, teacher, device, 
             train_dataloader, 
-            distill_weight, optimizer, scheduler=warmup
+            distill_weight * (decay_factor ** epochs) , optimizer, scheduler=warmup
         )
 
         # Sample losses

@@ -5,12 +5,6 @@ Does not support distributed training.
 
 To run, pass in a path to a TOML config file as an argument. 
 The TOML should contain the following sections:
-- model
-- train_dataset
-- validation_dataset
-- pruning
-- finetuning
-- output_dir
 """
 
 import sys
@@ -24,7 +18,8 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from models.vision_transformer import ViT
 from data.datasets import TimeSeriesDataset
-from trainers.prune_unstructured import prune_unstructured
+from trainers.prune_attention_heads import prune_attention_heads
+import torch.nn.utils.prune as prune
 
 def main(config: dict):
 
@@ -40,7 +35,6 @@ def main(config: dict):
 
     logger = wandb.init(
         project="turbulence-vit-prune",
-        group=config['pruning']['importance_metric'],
         config=config,
     ) if local_rank == 0 else None
 
@@ -62,7 +56,7 @@ def main(config: dict):
 
     # Prune model
 
-    prune_unstructured(
+    prune_attention_heads(
         model, device, 
         train_dataset, validation_dataset, 
         **config['pruning'], 
