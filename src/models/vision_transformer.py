@@ -130,42 +130,28 @@ class ViT(nn.Module):
 
         return pruned
 
-    def get_parameters_to_prune(self, bias=False):
-        to_prune = []
+    def get_weights(self):
+        weights = []
 
         for block in self.encoder_blocks:
-            to_prune += [
+            weights += [
                 (block.attn.qkv, 'weight'), 
                 (block.attn.proj, 'weight'), 
                 (block.mlp.fc1, 'weight'),
                 (block.mlp.fc2, 'weight'), 
             ]
-            if bias:
-                to_prune += [
-                    (block.attn.proj, 'bias'),
-                    (block.mlp.fc1, 'bias'),
-                    (block.mlp.fc2, 'bias'),
-                ]
 
-        to_prune.append((self.decoder_embed, 'weight'))
-        if bias:
-            to_prune.append((self.decoder_embed, 'bias'))
+        weights.append((self.decoder_embed, 'weight'))
 
         for block in self.decoder_blocks:
-            to_prune += [
+            weights += [
                 (block.attn.qkv, 'weight'), 
                 (block.attn.proj, 'weight'), 
                 (block.mlp.fc1, 'weight'),
                 (block.mlp.fc2, 'weight'), 
             ]
-            if bias:
-                to_prune += [
-                    (block.attn.proj, 'bias'),
-                    (block.mlp.fc1, 'bias'),
-                    (block.mlp.fc2, 'bias'),
-                ]
         
-        return to_prune
+        return weights
 
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
@@ -287,11 +273,6 @@ class ViT(nn.Module):
             strict (bool): Enforce keys in `state_dict` match the model's keys?
             *args, **kwargs: Overflow
         """
-
-        # Cache optimizer state
-
-        if 'optimizer_state' in state_dict:
-            self.optimizer_state = state_dict['optimizer_state']
 
         # Extract model state
 

@@ -1,5 +1,5 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_cosine_restarts/pruned_models/41.pt"
-output_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_cosine_restarts/gifs/41.gif"
+checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/l1/checkpoints/22.52.tar"
+output_file = "/glade/derecho/scratch/jshen/prune_base/l1/gifs/22.52.gif"
 
 [model]
 img_size = 256

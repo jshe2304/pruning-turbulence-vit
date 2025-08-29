@@ -11,7 +11,7 @@ from py2d.initialize import initialize_wavenumbers_rfft2
 from py2d.convert import Omega2Psi, Psi2UV
 
 class TimeSeriesDataset(Dataset):
-    def __init__(self, data_dir, frame_range, target_step, stride, num_frames=1, **kwargs): 
+    def __init__(self, data_dir, frame_range, stride, target_step, input_step, num_frames=1, **kwargs): 
         """
         Args:
             data_dir: Path to the data directory
@@ -23,6 +23,7 @@ class TimeSeriesDataset(Dataset):
 
         self.data_dir = data_dir
         self.target_step = target_step
+        self.input_step = input_step
         self.stride = stride
         self.num_frames = num_frames
 
@@ -33,23 +34,38 @@ class TimeSeriesDataset(Dataset):
             self.frames.extend(range(start_frame + (num_frames - 1), end_frame, stride))
 
         # Load mean/std for normalization
+
         self.mean = np.load(os.path.join(data_dir, 'stats/mean_full_field.npy')).tolist()
         self.std  = np.load(os.path.join(data_dir, 'stats/std_full_field.npy')).tolist()
         self.normalize = Normalize(self.mean, self.std)
+
+        # Make sure all necessary frames are in the data directory
+
+        existing_frames = set(
+            int(f.rsplit('.', 1)[0]) 
+            for f in os.listdir(os.path.join(data_dir, 'data')) 
+            if f.endswith('.mat')
+        )
+
+        self.frames = [
+            f for f in self.frames 
+            if (f in existing_frames and f + self.target_step in existing_frames)
+        ]
 
     def __len__(self):
         return len(self.frames)
 
     def __getitem__(self, i: int):
+        
         # Load and stack multiple input frames
         input_frames = torch.stack([
-            self._load_and_norm(self.frames[i] - t * self.target_step)
+            self._load_and_norm(self.frames[i] - t * self.input_step)
             for t in range(self.num_frames)
         ], dim=1)
-        
+
         # Load target frame
         target_frame = self._load_and_norm(self.frames[i] + self.target_step).unsqueeze(1)
-        
+
         return input_frames, target_frame
 
     def _load_and_norm(self, file_num: int) -> torch.Tensor:

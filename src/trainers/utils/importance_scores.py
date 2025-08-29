@@ -1,156 +1,185 @@
 import torch
-import torch.nn.functional as F
 import torch.distributed as dist
+import torch.nn as nn
+from torch.optim import AdamW
 
-from torch.utils.data import DataLoader, DistributedSampler
+from torch.utils.data import DataLoader
 
-def compute_importance_scores(model, dataset, importance_metric, device, **kwargs):
+def compute_importance_scores(importance_metric, model, device, **kwargs):
     """
-    Router funciton to compute pruning importance scores using different metrics. 
+    Router function to compute pruning importance scores using different metrics. 
     """
 
     if importance_metric == 'l1':
         return None
-    elif importance_metric == 'fisher':
-        return _compute_fisher_importance(model, dataset, device, **kwargs)
     elif importance_metric == 'taylor':
-        return _compute_taylor_importance(model, dataset, device, **kwargs)
+        return _compute_taylor_importance(model, device, **kwargs)
+    elif importance_metric == 'fisher':
+        return _compute_fisher_importance(model, device, **kwargs)
+    elif importance_metric == 'squisher':
+        return _compute_squisher_importance(model, device, **kwargs)
     else:
-        raise ValueError(f"Invalid importance metric: {importance_metric}")
+        return None
 
-def _compute_fisher_importance(model, dataset, device, batch_size=16, num_batches=8):
+def _compute_taylor_importance(model, device, dataset, batch_size=1, num_batches=1024, **kwargs):
     """
-    Compute Fisher importance metric for pruning. 
+    Compute first-order Taylor scores for unstructured pruning and return them in the
+    format expected by prune.global_unstructured(..., importance_scores=...).
+
     Intended for execution in an initialized DDP environment. 
+    
+    Returns:
+        (parameters_to_prune, importance_scores_dict)
+        where importance_scores_dict maps (module, "weight") -> score tensor.
     """
-
-    model.eval()
 
     # Get parameters to prune
 
-    parameters_to_prune = model.module.get_parameters_to_prune(bias=False)
+    weights = model.module.get_weights()
 
     # Make dataloader
 
-    sampler = DistributedSampler(dataset, shuffle=True)
     dataloader = DataLoader(
-        dataset, batch_size=batch_size, 
-        sampler=sampler, shuffle=False, 
-        num_workers=4, pin_memory=True, drop_last=True
+        dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=4,
+        pin_memory=True,
+        drop_last=True,
     )
-    sampler.set_epoch(0)
 
-    # Initialize scores
-
-    g2 = {
-        (submodule, param_name): torch.zeros_like(getattr(submodule, param_name), requires_grad=False) 
-        for submodule, param_name in parameters_to_prune
+    # Prepare score buffers (match device of parameters)
+    scores = {
+        (m, name): torch.zeros_like(getattr(m, name), requires_grad=False)
+        for (m, name) in weights
     }
 
-    # Accumulate square gradients
+    model.eval()
 
-    seen = 0
-    for input, target in dataloader:
-        if seen >= num_batches: break
+    if dist.get_rank() == 0:
+        for i, (x, y_true) in enumerate(dataloader):
+            if i >= num_batches: break
+            x, y_true = x.to(device, non_blocking=True), y_true.to(device, non_blocking=True)
 
-        # Forward pass and backward pass
+            model.zero_grad(set_to_none=True)
+            with model.no_sync():  # prevents DDP all-reduce while still computing grads locally
+                y_pred = model(x)  # assume standard forward; adapt if needed
+                per_sample_mse = (y_pred - y_true).pow(2)
+                if per_sample_mse.ndim > 2:
+                    per_sample_mse = per_sample_mse.flatten(1)
+                # Mean over features, sum over batch to avoid 1/B scaling
+                loss = per_sample_mse.mean(1).sum()
+                loss.backward()
 
-        input = input.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
+            # Accumulate (grad * weight)^2
+            with torch.no_grad():
+                for (m, name) in weights:
+                    p: torch.Tensor = getattr(m, name)
+                    if p.grad is not None:
+                        scores[(m, name)].add_((p.grad * p).pow(2))
+            seen_samples += x.size(0)
 
-        model.zero_grad(set_to_none=True)
-        preds = model(input)
-        per_sample_mse = (preds - target).pow(2)
-        if per_sample_mse.ndim > 2:
-            per_sample_mse = per_sample_mse.flatten(1)
-        loss = per_sample_mse.mean(1).mean() # mean over features, then over batch
-        loss.backward()
-
-        # Update sum of squared gradients
-
-        global_batch_size  = input.size(0) * dist.get_world_size()
-        with torch.no_grad():
-            for (submodule, param_name) in parameters_to_prune:
-                param = getattr(submodule, param_name)
-                if param.grad is not None:
-                    g2[(submodule, param_name)].add_(param.grad.pow(2) * global_batch_size)
-
-        seen += 1
-
-    # Compute scores
-
-    scores = {}
-    with torch.no_grad():
-        for (submodule, param_name) in g2.keys():
-            F_diag = g2[(submodule, param_name)] / seen
-            w = getattr(submodule, param_name)
-            scores[(submodule, param_name)] = F_diag * w.pow(2)
+    for k in scores:
+        if seen_samples > 0:
+            scores[k].div_(float(seen_samples))
+        dist.broadcast(scores[k], src=0)
 
     return scores
 
-def _compute_taylor_importance(model, dataset, device, batch_size=16, num_batches=8):
+def _compute_fisher_importance(model, device, dataset, batch_size=32, num_batches=64, **kwargs):
     """
-    Compute Taylor importance metric for pruning. 
-    Intended for execution in an initialized DDP environment. 
-    """
+    Compute second-order Fisher scores for unstructured pruning and return them in the
+    format expected by prune.global_unstructured(..., importance_scores=...).
 
-    model.eval()
+    Intended for execution in an initialized DDP environment. 
+    
+    Returns:
+        (parameters_to_prune, importance_scores_dict)
+        where importance_scores_dict maps (module, "weight") -> score tensor.
+    """
 
     # Get parameters to prune
 
-    parameters_to_prune = model.module.get_parameters_to_prune(bias=False)
+    weights = model.module.get_weights()
 
     # Make dataloader
 
-    sampler = DistributedSampler(dataset, shuffle=True)
     dataloader = DataLoader(
-        dataset, batch_size=batch_size, 
-        sampler=sampler, shuffle=False, 
-        num_workers=4, pin_memory=True, drop_last=True
+        dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=4,
+        pin_memory=True,
+        drop_last=True,
     )
-    sampler.set_epoch(0)
 
-    # Initialize scores
-
+    # Prepare score buffers (match device of parameters)
     scores = {
-        (submodule, param_name): torch.zeros_like(getattr(submodule, param_name), requires_grad=False) 
-        for submodule, param_name in parameters_to_prune
+        (m, name): torch.zeros_like(getattr(m, name), requires_grad=False)
+        for (m, name) in weights
     }
 
-    # Accumulate square gradients
+    model.eval()
 
-    seen = 0
-    for input, target in dataloader:
-        if seen >= num_batches: break
+    if dist.get_rank() == 0:
+        for i, (x, y_true) in enumerate(dataloader):
+            if i >= num_batches: break
+            x, y_true = x.to(device, non_blocking=True), y_true.to(device, non_blocking=True)
 
-        # Forward pass and backward pass
+            model.zero_grad(set_to_none=True)
+            with model.no_sync():  # prevents DDP all-reduce while still computing grads locally
+                y_pred = model(x)  # assume standard forward; adapt if needed
+                per_sample_mse = (y_pred - y_true).pow(2)
+                if per_sample_mse.ndim > 2:
+                    per_sample_mse = per_sample_mse.flatten(1)
+                # Mean over features, sum over batch to avoid 1/B scaling
+                loss = per_sample_mse.mean(1).sum()
+                loss.backward()
 
-        input = input.to(device, non_blocking=True)
-        target = target.to(device, non_blocking=True)
+            # Accumulate (grad * weight)^2
+            with torch.no_grad():
+                for (module, param) in weights:
+                    p = getattr(module, param)
+                    if p.grad is not None:
+                        scores[(module, param)].add_(p.grad.pow(2))
+            seen_samples += x.size(0)
 
-        model.zero_grad(set_to_none=True)
-        preds = model(input)
-        per_sample_mse = (preds - target).pow(2)
-        if per_sample_mse.ndim > 2:
-            per_sample_mse = per_sample_mse.flatten(1)
-        loss = per_sample_mse.mean(1).mean() # mean over features, then over batch
-        loss.backward()
+    for (module, param) in scores:
+        if seen_samples > 0:
+            scores[(module, param)].div_(float(seen_samples))
+        scores[(module, param)].mul_(getattr(module, param).pow(2))
+        dist.broadcast(scores[(module, param)], src=0)
 
-        # Update sum of squared gradients
+    return scores
 
-        global_batch_size  = input.size(0) * dist.get_world_size()
-        with torch.no_grad():
-            for (submodule, param_name) in parameters_to_prune:
-                param = getattr(submodule, param_name)
-                if param.grad is not None:
-                    scores[(submodule, param_name)].add_((param * param.grad).pow(2) * global_batch_size)
 
-        seen += 1
+def _compute_squisher_importance(model, device, optimizer_state, **kwargs):
 
-    # Compute scores
+    if optimizer_state is None: return None
 
-    with torch.no_grad():
-        for (submodule, param_name) in scores.keys():
-            scores[(submodule, param_name)].div_(seen)
+    weights = model.module.get_weights()
+
+    # Make a throwaway AdamW, load the provided state_dict onto it
+    optimizer = AdamW(model.parameters())
+    optimizer.load_state_dict(optimizer_state)
+
+    scores = {
+        (m, name): torch.zeros_like(getattr(m, name), device=device)
+        for (m, name) in weights
+    }
+
+    if dist.get_rank() == 0:
+        for (m, name) in weights:
+            p = getattr(m, name)
+            st = optimizer.state.get(p, None)
+            if st is not None and "exp_avg_sq" in st:
+                v = st["exp_avg_sq"]
+                v = v.to(device, non_blocking=True)
+                scores[(m, name)] = (p.detach() ** 2) * v
+
+    for k in scores:
+        dist.broadcast(scores[k], src=0)
+
+    dist.barrier()
 
     return scores

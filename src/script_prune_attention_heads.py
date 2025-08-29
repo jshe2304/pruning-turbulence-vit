@@ -35,19 +35,32 @@ def main(config: dict):
 
     logger = wandb.init(
         project="turbulence-vit-prune",
+        group="attention_heads",
+        id=config.get('wandb_id', None), 
         config=config,
+        resume='allow'
     ) if local_rank == 0 else None
 
     # Adjust batch size for distributed training
 
     config['finetuning']['batch_size'] //= world_size
 
-    # Initialize model
+    # Unpack state dict
 
-    model = ViT(**config['model']).to(device)
     state_dict = torch.load(config['checkpoint_file'], map_location=device, weights_only=False)
-    model.load_state_dict(state_dict)
+    optimizer_state = state_dict.pop('optimizer_state', None)
+    model_state_dict = state_dict.pop('model_state', state_dict)
+
+    # Initialize model
+    
+    model = ViT(**config['model']).to(device)
+    model.load_state_dict(model_state_dict)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
+
+    # Adjust target steps for rollout losses
+
+    config['train_dataset']['target_step'] *= config['finetuning']['num_rollout_steps']
+    config['validation_dataset']['target_step'] *= config['finetuning']['num_rollout_steps']
 
     # Initialize datasets
 
@@ -58,6 +71,7 @@ def main(config: dict):
 
     prune_attention_heads(
         model, device, 
+        optimizer_state,
         train_dataset, validation_dataset, 
         **config['pruning'], 
         **config['finetuning'], 

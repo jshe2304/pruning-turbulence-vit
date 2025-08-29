@@ -1,4 +1,5 @@
-teacher_checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/model/best.tar"
+teacher_checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/pretrained/best.tar"
+# student_checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/distill_from_base/checkpoints/225.tar"
 
 [model]
 img_size = 256
@@ -58,4 +59,5 @@ batch_size = 32
 checkpoint_period = 5
 distill_weight = 1
 decay_factor = 0.98
-output_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/train/'
+epoch = 0
+output_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/train/distill/'

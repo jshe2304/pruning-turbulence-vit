@@ -54,7 +54,21 @@ def perform_long_analysis(
     """
 
     print("Starting long analysis...")
-    print('Div', div)
+    print(f"Inference directory: {inference_dir}")
+    print(f"Output directory: {output_dir}")
+    print(f"Image size: {img_size}")
+    print(f"Analysis length: {analysis_length}")
+    print(f"Temporal mean: {temporal_mean}")
+    print(f"Zonal mean: {zonal_mean}")
+    print(f"Zonal EOF PC: {zonal_eof_pc}")
+    print(f"Divergence: {div}")
+    print(f"Return period: {return_period}")
+    print(f"Return period anomaly: {return_period_anomaly}")
+    print(f"PDF U: {PDF_U}")
+    print(f"PDF Omega: {PDF_Omega}")
+    print(f"Spectra: {spectra}")
+    print(f"EOF ncomp: {eof_ncomp}")
+    print(f"PC autocorrelation lags: {PC_autocorr_nlags}")
 
     Lx, Ly = 2*np.pi, 2*np.pi
     Nx = img_size

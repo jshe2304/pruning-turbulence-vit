@@ -1,5 +1,8 @@
 checkpoint_file = "/glade/derecho/scratch/jshen/base/best.tar"
-output_dir = "/glade/derecho/scratch/jshen/prune_base/exact_taylor/checkpoints"
+# checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/l1/checkpoints/25.tar"
+output_dir = "/glade/derecho/scratch/jshen/prune_base/random/checkpoints/"
+
+# wandb_id = 
 
 [model]
 img_size = 256
@@ -34,9 +37,9 @@ stride = 1
 num_frames = 2
 
 [pruning]
-importance_metric = 'taylor'
-prune_schedule = [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
-epoch_schedule = [ 128,  128,  128,  128,  128,  128,  128,  128,  128,  128,  128]
+importance_metric = 'random'
+prune_schedule = [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00]
+epoch_schedule = [ 192,  192,  192,  192,  192,  192,  192,  192,  192,  192,  192,  192]
 
 [finetuning]
 restart_optimizer = true
@@ -46,5 +49,5 @@ weight_decay = 1e-6
 warmup_start_factor = 0.01
 num_warmup_epochs = 2
 plateau_factor = 0.5
-plateau_patience = 2
-early_stop_lr_threshold = 1e-6
+plateau_patience = 3
+early_stop_lr_threshold = 2e-8

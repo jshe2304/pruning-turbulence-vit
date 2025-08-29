@@ -81,7 +81,7 @@ def distill(
     lr, weight_decay, distill_weight, decay_factor, # Optimizer
     warmup_start_factor, warmup_epochs, # Warmup scheduler
     plateau_factor, plateau_patience, # Plateau scheduler
-    output_dir, checkpoint_period=None, logger=None, # Logging
+    output_dir, epoch=0, checkpoint_period=None, logger=None, # Logging
     **kwargs
     ):
     """
@@ -137,7 +137,7 @@ def distill(
 
     # Training
 
-    for epoch in range(epochs):
+    for epoch in range(epoch, epoch + epochs):
 
         # Train
 
@@ -145,7 +145,7 @@ def distill(
         distill_one_epoch(
             model, teacher, device, 
             train_dataloader, 
-            distill_weight * (decay_factor ** epochs) , optimizer, scheduler=warmup
+            distill_weight * (decay_factor ** epoch) , optimizer, scheduler=warmup
         )
 
         # Sample losses
@@ -178,6 +178,9 @@ def distill(
 
             if epoch % checkpoint_period == 0:
                 torch.save(
-                    model.module.state_dict(), 
-                    os.path.join(checkpoint_dir, f'epoch_{epoch}.pt')
+                    {
+                        'model_state': model.module.state_dict(), 
+                        'optimizer_state': optimizer.state_dict()
+                    }, 
+                    os.path.join(checkpoint_dir, f'epoch_{epoch}.tar')
                 )

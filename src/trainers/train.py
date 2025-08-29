@@ -77,6 +77,7 @@ def train(
 
     # Training
 
+    best_validation_loss = float('inf')
     for epoch in range(epochs):
 
         # Train
@@ -115,8 +116,23 @@ def train(
 
             # Save model
 
+            if validation_loss < best_validation_loss:
+                best_validation_loss = validation_loss
+                torch.save(
+                    {   
+                        'epoch': epoch,
+                        'validation_loss': validation_loss,
+                        'model_state': model.module.state_dict(), 
+                        'optimizer_state': optimizer.state_dict()
+                    }, 
+                    os.path.join(checkpoint_dir, f"best.tar")
+                )
+
             if epoch % checkpoint_period == 0:
                 torch.save(
-                    model.module.state_dict(), 
-                    os.path.join(checkpoint_dir, f'epoch_{epoch}.pt')
+                    {
+                        'model_state': model.module.state_dict(), 
+                        'optimizer_state': optimizer.state_dict()
+                    }, 
+                    os.path.join(checkpoint_dir, f"epoch_{epoch}.tar")
                 )

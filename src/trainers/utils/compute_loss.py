@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader, DistributedSampler
 import torch.nn.functional as F
 
 @torch.no_grad()
-def compute_loss(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
+def compute_loss(model, dataset, num_rollout_steps, n_samples=4096, batch_size=32, device='cpu'):
     """
     Compute the MSE loss of the model on a dataset. 
     Supports distributed inference. 
@@ -27,17 +27,22 @@ def compute_loss(model, dataset, n_samples=4096, batch_size=32, device='cpu'):
     )
     
     total_loss, samples_processed = 0., 0
-    for img, target in dataloader:
+    for ic, target in dataloader:
         if samples_processed >= n_samples: break
+        ic, target = ic.to(device), target.to(device)
         
-        this_batch_size = img.size(0)
+        this_batch_size = ic.size(0)
 
-        pred = model(img.to(device))
-        sample_loss = F.mse_loss(pred, target.to(device)).item()
+        for _ in range(num_rollout_steps):
+            y_pred = model(ic)
+            prev_ic = ic[:, :, :-1, :, :].contiguous()
+            ic = torch.cat([y_pred, prev_ic], dim=2)
+
+        sample_loss = F.mse_loss(y_pred, target).item()
         batch_loss = sample_loss * this_batch_size
         total_loss += batch_loss
 
-        samples_processed += this_batch_size 
+        samples_processed += this_batch_size
 
     mean_loss = total_loss / samples_processed
     mean_loss = torch.tensor(mean_loss, device=device)

@@ -1,5 +1,7 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_attention_heads/pruned_models/3.tar"
-output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/base/prune_attention_heads/resume/"
+#checkpoint_file = "/glade/derecho/scratch/jshen/base/best.tar"
+checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/attention_heads/checkpoints/last.tar"
+output_dir = "/glade/derecho/scratch/jshen/prune_base/attention_heads/checkpoints_resume/"
+wandb_id = "3127490877836611090"
 
 [model]
 img_size = 256
@@ -21,6 +23,7 @@ patch_recovery = "subpixel_conv"
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
 frame_range = [ [200000, 210000], [995000, 1004998], ]
 target_step = 3
+input_step = 3
 stride = 1
 num_frames = 2
 
@@ -28,6 +31,7 @@ num_frames = 2
 data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
 frame_range = [ [310000, 312000], ]
 target_step = 3
+input_step = 3
 stride = 1
 num_frames = 2
 
@@ -35,7 +39,7 @@ num_frames = 2
 num_iterations=12
 
 [finetuning]
-finetuner_type = 'plateau'
+num_rollout_steps = 1
 restart_optimizer = true
 batch_size = 32
 epochs = 192
@@ -43,6 +47,6 @@ lr = 0.00002
 weight_decay = 1e-6
 warmup_start_factor = 0.01
 num_warmup_epochs = 2
-plateau_factor = 0.2
+plateau_factor = 0.5
 plateau_patience = 3
 early_stop_lr_threshold = 2e-8

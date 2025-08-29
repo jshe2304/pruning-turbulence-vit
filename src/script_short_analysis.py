@@ -64,13 +64,17 @@ if __name__ == "__main__":
 
         for file in os.listdir(config['checkpoint_dir']):
             fname, ext = os.path.splitext(file)
-            if not (ext == '.pt' or ext == '.tar'):
-                continue
+            if not (ext == '.pt' or ext == '.tar'): continue
+
+            # Check if output file already exists
+
+            output_file = os.path.join(config['output_dir'], fname + '_metrics.npz')
+            if os.path.exists(output_file): continue
 
             # Create single model config file for processing
 
             this_config = copy.deepcopy(config)
             this_config['checkpoint_file'] = os.path.join(config['checkpoint_dir'], fname + ext)
-            this_config['output_file'] = os.path.join(config['output_dir'], fname + '_metrics.npz')
+            this_config['output_file'] = output_file
 
             main(this_config)
