@@ -19,12 +19,9 @@ def prune_attention_head(model, dataset, device):
 
             # Create pruning buffers if needed
 
-            if not hasattr(attn.qkv, 'weight_mask'):
-                prune.identity(attn.qkv, 'weight')
-            if not hasattr(attn.qkv, 'bias_mask'):
-                prune.identity(attn.qkv, 'bias')
-            if not hasattr(attn.proj, 'weight_mask'):
-                prune.identity(attn.proj, 'weight')
+            prune.identity(attn.qkv, 'weight')
+            prune.identity(attn.qkv, 'bias')
+            prune.identity(attn.proj, 'weight')
 
             # Get and shape masks
 
@@ -94,6 +91,10 @@ def num_pruned_heads(model):
     for l, block in enumerate(blocks):
         attn = block.attn
         for h in range(attn.num_heads):
+
+            if not hasattr(attn.qkv, 'weight_mask'): continue
+            if not hasattr(attn.qkv, 'bias_mask'): continue
+            if not hasattr(attn.proj, 'weight_mask'): continue
 
             # Get and shape masks
 

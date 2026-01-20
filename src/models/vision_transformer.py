@@ -276,8 +276,7 @@ class ViT(nn.Module):
 
         # Extract model state
 
-        if 'model_state' in state_dict:
-            state_dict = state_dict['model_state']
+        state_dict = getattr(state_dict, 'model_state', state_dict)
 
         # If there are pruning buffers, set up pruning
         for key in list(state_dict):

@@ -1,5 +1,5 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/l1/checkpoints/branch_22.52/pruned_models/21.26.tar"
-output_dir = "/glade/derecho/scratch/jshen/prune_base/l1/checkpoints/branch_22.52/inferences/21.26"
+checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/l1_new/checkpoints/32.15.tar"
+output_dir = "/glade/derecho/scratch/jshen/prune_base/l1_new/inferences/32.15/"
 
 [model]
 img_size = 256
@@ -21,6 +21,7 @@ patch_recovery = "subpixel_conv"
 data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
 frame_range = [350000, 353004] # (start_frame, start_frame + (inference_length * target_step) + target_step)
 target_step = 3
+input_step = 3
 stride = 3
 num_frames = 2
 

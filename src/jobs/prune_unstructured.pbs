@@ -16,3 +16,4 @@ module load cuda
 conda activate vit
 
 torchrun --standalone --nnodes=1 --nproc-per-node=4 script_prune_unstructured.py ${config}
+#qsub -v config=config/prune/l1.toml prune_unstructured.pbs

@@ -12,3 +12,4 @@ module load conda
 conda activate vit
 
 python script_make_inference.py ${config}
+#qsub -v config=config/inference/long_analysis.toml ./jobs/long_analysis.pbs

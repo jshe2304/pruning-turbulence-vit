@@ -49,6 +49,8 @@ def finetune(
         **kwargs: Overflow arguments
     """
 
+    print(f'Finetuning (Optimizer state: {optimizer_state is not None})')
+
     local_rank = int(os.environ["LOCAL_RANK"])
     total_parameters = model.module.n_parameters()
     pruned_parameters = model.module.n_pruned_parameters()

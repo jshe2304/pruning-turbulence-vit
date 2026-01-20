@@ -20,11 +20,28 @@ import wandb
 
 import torch
 import torch.distributed as dist
+import torch.nn.utils.prune as prune
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from models.vision_transformer import ViT
 from data.datasets import TimeSeriesDataset
 from trainers.prune_unstructured import prune_unstructured
+
+torch.autograd.set_detect_anomaly(True)
+
+def get_masks(model):
+    return [
+        getattr(
+            module, param + '_mask', 
+            torch.ones_like(getattr(module, param))
+        )
+        for module, param in model.get_weights()
+    ]
+
+def bake_masks(model):
+    for module, param in model.get_weights():
+        if hasattr(module, param + '_mask'):
+            prune.remove(module, param)
 
 def main(config: dict):
 
@@ -60,7 +77,12 @@ def main(config: dict):
 
     model = ViT(**config['model']).to(device)
     model.load_state_dict(model_state_dict)
+    masks = get_masks(model) # get masks
+    bake_masks(model) # bake in masks to remove buffers
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
+    for mask, (module, param) in zip(masks, model.module.get_weights()):
+        prune.custom_from_mask(module, param, mask) # re-apply masks after DDP
+    del masks
 
     # Adjust target steps for rollout losses
 

@@ -18,7 +18,9 @@ def main(config: dict):
     
     model = ViT(**config['model'])
     state_dict = torch.load(config['checkpoint_file'], map_location=device, weights_only=False)
-    model.load_state_dict(state_dict)
+    optimizer_state = state_dict.pop('optimizer_state', None)
+    model_state_dict = state_dict.pop('model_state', state_dict)
+    model.load_state_dict(model_state_dict)
     model.to(device)
 
     # Load test data

@@ -36,14 +36,23 @@ def prune_attention_heads(
 
     for iteration in range(num_iterations):
 
+        prune_head = (
+            iteration > 0 or # Not first iteration
+            (iteration == 0 and optimizer_state is None) or # Starting from scratch
+            (
+                optimizer_state is not None and 
+                optimizer_state['param_groups'][0]['lr'] <= finetune_config['early_stop_lr_threshold']
+            ) # Checkpoint doesn't need finetuning
+        )
+
         # Prune
-        if iteration > 0:
+        if prune_head:
             layer, head_index = prune_attention_head(model, train_dataset, device)
             print(f'Pruned head {head_index} in layer {layer}')
     
         # Optionally restart optimizer
 
-        if finetune_config['restart_optimizer'] and iteration > 0:
+        if finetune_config['restart_optimizer'] and prune_head:
             optimizer_state = None
 
         # Finetune
@@ -58,7 +67,7 @@ def prune_attention_heads(
 
         # Logging
 
-        if local_rank == 0 and iteration > 0:
+        if local_rank == 0:
             torch.save(
                 {
                     'model_state': model.module.state_dict(), 

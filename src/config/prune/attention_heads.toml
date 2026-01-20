@@ -1,7 +1,7 @@
-#checkpoint_file = "/glade/derecho/scratch/jshen/base/best.tar"
+# checkpoint_file = "/glade/derecho/scratch/jshen/base/best.tar"
 checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/attention_heads/checkpoints/last.tar"
-output_dir = "/glade/derecho/scratch/jshen/prune_base/attention_heads/checkpoints_resume/"
-wandb_id = "3127490877836611090"
+output_dir = "/glade/derecho/scratch/jshen/prune_base/attention_heads/checkpoints/"
+wandb_id = "uk8hepst"
 
 [model]
 img_size = 256

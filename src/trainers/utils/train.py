@@ -29,7 +29,7 @@ def train_one_epoch(
             prev_ic = ic[:, :, :-1, :, :].contiguous()
             ic = torch.cat([y_pred, prev_ic], dim=2)
         
-        loss = F.mse_loss(y_pred, target.to(device))
+        loss = F.mse_loss(y_pred, target)
         loss.backward()
         optimizer.step()
         if scheduler is not None: scheduler.step()

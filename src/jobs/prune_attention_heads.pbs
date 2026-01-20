@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -A UCHI0014
+#PBS -A URIC0009
 #PBS -j oe
 #PBS -k eod
 #PBS -q main
@@ -16,3 +16,4 @@ module load cuda
 conda activate vit
 
 torchrun --standalone --nnodes=1 --nproc-per-node=4 script_prune_attention_heads.py ${config}
+qsub -v config=${config} prune_attention_heads.pbs

@@ -19,7 +19,9 @@ def main(config: dict):
     
     model = ViT(**config['model'])
     state_dict = torch.load(config['checkpoint_file'], map_location=device, weights_only=False)
-    model.load_state_dict(state_dict)
+    optimizer_state = state_dict.pop('optimizer_state', None)
+    model_state_dict = state_dict.pop('model_state', state_dict)
+    model.load_state_dict(model_state_dict)
     model.to(device)
 
     # Load data
@@ -68,7 +70,7 @@ if __name__ == "__main__":
 
             # Check if output file already exists
 
-            output_file = os.path.join(config['output_dir'], fname + '_metrics.npz')
+            output_file = os.path.join(config['output_dir'], fname + '.npz')
             if os.path.exists(output_file): continue
 
             # Create single model config file for processing

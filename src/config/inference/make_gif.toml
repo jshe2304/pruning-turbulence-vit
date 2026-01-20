@@ -21,5 +21,6 @@ patch_recovery = "subpixel_conv"
 data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
 frame_range = [350000, 351000] # [test_start, test_start + (n_frames * (n_ensembles + 2) * target_step)]
 target_step = 3
+input_step = 3
 stride = 3
 num_frames = 2

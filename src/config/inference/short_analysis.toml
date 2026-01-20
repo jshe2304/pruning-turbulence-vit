@@ -1,5 +1,5 @@
-checkpoint_dir = "/glade/derecho/scratch/jshen/prune_base/l1/checkpoints/branch_22.52/checkpoints/"
-output_dir = "/glade/derecho/scratch/jshen/prune_base/l1/checkpoints/branch_22.52/short_analysis/"
+checkpoint_dir = "/glade/derecho/scratch/jshen/prune_base/l1_new/checkpoints/"
+output_dir = "/glade/derecho/scratch/jshen/prune_base/l1_new/short_analyses/"
 
 [model]
 img_size = 256
@@ -21,6 +21,7 @@ patch_recovery = "subpixel_conv"
 data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
 frame_range = [350000, 353600]
 target_step = 3
+input_step = 3
 stride = 3
 num_frames = 2
 
@@ -28,6 +29,7 @@ num_frames = 2
 data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
 frame_range = [350000, 351000]
 target_step = 1
+input_step = 1
 stride = 1
 num_frames = 1
 
