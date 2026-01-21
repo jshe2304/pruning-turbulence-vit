@@ -4,7 +4,7 @@ import numpy as np
 
 from torch.utils.data import DataLoader
 
-from .rollout import single_step_rollout
+from .utils.rollout import single_step_rollout
 
 def make_inference(model, dataset, inference_length, output_dir, chunk_size=1000, device='cpu'):
 

@@ -9,11 +9,10 @@
 #PBS -l select=1:ncpus=64:ngpus=4
 #PBS -l gpu_type=a100
 
-cd /glade/u/home/jshen/pruning-turbulence-vit/src
+cd /glade/u/home/jshen/pruning-turbulence-vit
 
 module load conda
 module load cuda
 conda activate vit
 
-torchrun --standalone --nnodes=1 --nproc-per-node=4 script_prune_unstructured.py ${config}
-#qsub -v config=config/prune/l1.toml prune_unstructured.pbs
+torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/script_train.py ${config}

@@ -6,7 +6,7 @@
 #PBS -m abe
 #PBS -j oe
 
-cd /glade/u/home/jshen/pruning-turbulence-vit/src/notebooks
+cd /glade/u/home/jshen/pruning-turbulence-vit/notebooks
 
 module load conda
 conda activate vit

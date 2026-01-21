@@ -5,10 +5,10 @@ import copy
 
 import torch
 
-from models.vision_transformer import ViT
-from data.datasets import TimeSeriesDataset
+from src.models.vision_transformer import ViT
+from src.data.datasets import TimeSeriesDataset
 
-from inference.make_gif import make_gif
+from src.inference.make_gif import make_gif
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

@@ -3,13 +3,12 @@ import os
 import toml
 import copy
 
-import numpy as np
 import torch
 
-from models.vision_transformer import ViT
-from data.datasets import TimeSeriesDataset
+from src.models.vision_transformer import ViT
+from src.data.datasets import TimeSeriesDataset
 
-from inference.short_analysis import perform_short_analysis
+from src.inference.make_inference import make_inference
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -26,21 +25,16 @@ def main(config: dict):
 
     # Load data
 
-    test_dataset = TimeSeriesDataset(**config['test_dataset']) 
-    climo_dataset = TimeSeriesDataset(**config['climo_dataset'])
+    dataset = TimeSeriesDataset(**config['dataset']) 
 
-    # Compute metrics
+    # Save inference
 
-    results = perform_short_analysis(
-        model, 
-        test_dataset, climo_dataset, 
-        **config['analysis'], 
+    make_inference(
+        model, dataset, 
+        **config['inference'], 
+        output_dir=config['output_dir'], 
         device=device
     )
-
-    # Store results
-
-    np.savez(config['output_file'], **results)
 
 if __name__ == "__main__":
     
@@ -51,7 +45,8 @@ if __name__ == "__main__":
 
     # If analyzing one model
 
-    if 'checkpoint_file' in config and 'output_file' in config:
+    if 'checkpoint_file' in config and 'output_dir' in config:
+        print(config)
         main(config)
 
     # If analyzing many models
@@ -66,17 +61,13 @@ if __name__ == "__main__":
 
         for file in os.listdir(config['checkpoint_dir']):
             fname, ext = os.path.splitext(file)
-            if not (ext == '.pt' or ext == '.tar'): continue
-
-            # Check if output file already exists
-
-            output_file = os.path.join(config['output_dir'], fname + '.npz')
-            if os.path.exists(output_file): continue
+            if not (ext == '.pt' or ext == '.tar'):
+                continue
 
             # Create single model config file for processing
 
             this_config = copy.deepcopy(config)
             this_config['checkpoint_file'] = os.path.join(config['checkpoint_dir'], fname + ext)
-            this_config['output_file'] = output_file
+            this_config['output_dir'] = os.path.join(config['output_dir'], fname)
 
             main(this_config)

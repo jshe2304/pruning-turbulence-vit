@@ -5,6 +5,12 @@ Does not support distributed training.
 
 To run, pass in a path to a TOML config file as an argument. 
 The TOML should contain the following sections:
+- model
+- train_dataset
+- validation_dataset
+- pruning
+- finetuning
+- output_dir
 """
 
 import sys
@@ -14,12 +20,28 @@ import wandb
 
 import torch
 import torch.distributed as dist
+import torch.nn.utils.prune as prune
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from models.vision_transformer import ViT
-from data.datasets import TimeSeriesDataset
-from trainers.prune_attention_heads import prune_attention_heads
-import torch.nn.utils.prune as prune
+from src.models.vision_transformer import ViT
+from src.data.datasets import TimeSeriesDataset
+from src.training.prune_unstructured import prune_unstructured
+
+torch.autograd.set_detect_anomaly(True)
+
+def get_masks(model):
+    return [
+        getattr(
+            module, param + '_mask', 
+            torch.ones_like(getattr(module, param))
+        )
+        for module, param in model.get_weights()
+    ]
+
+def bake_masks(model):
+    for module, param in model.get_weights():
+        if hasattr(module, param + '_mask'):
+            prune.remove(module, param)
 
 def main(config: dict):
 
@@ -35,7 +57,7 @@ def main(config: dict):
 
     logger = wandb.init(
         project="turbulence-vit-prune",
-        group="attention_heads",
+        group=config['pruning']['importance_metric'],
         id=config.get('wandb_id', None), 
         config=config,
         resume='allow'
@@ -52,10 +74,15 @@ def main(config: dict):
     model_state_dict = state_dict.pop('model_state', state_dict)
 
     # Initialize model
-    
+
     model = ViT(**config['model']).to(device)
     model.load_state_dict(model_state_dict)
+    masks = get_masks(model) # get masks
+    bake_masks(model) # bake in masks to remove buffers
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
+    for mask, (module, param) in zip(masks, model.module.get_weights()):
+        prune.custom_from_mask(module, param, mask) # re-apply masks after DDP
+    del masks
 
     # Adjust target steps for rollout losses
 
@@ -69,7 +96,7 @@ def main(config: dict):
 
     # Prune model
 
-    prune_attention_heads(
+    prune_unstructured(
         model, device, 
         optimizer_state,
         train_dataset, validation_dataset, 

@@ -3,7 +3,7 @@ import toml
 
 import torch
 
-from inference.long_analysis import perform_long_analysis
+from src.inference.long_analysis import perform_long_analysis
 
 if __name__ == "__main__":
     

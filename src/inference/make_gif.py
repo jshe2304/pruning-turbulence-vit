@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import DataLoader
 
-from .rollout import n_step_rollout
+from .utils.rollout import n_step_rollout
 
 def make_gif(model, test_dataset, output_file, time_per_frame=0.01, device='cpu'):
 

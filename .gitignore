@@ -1,5 +1,9 @@
+# Claude
+CLAUDE.local.md
+
 # Wandb
-/src/wandb/
+wandb/
+src/wandb/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
