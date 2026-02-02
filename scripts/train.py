@@ -19,7 +19,7 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.models.vision_transformer import ViT
+from src.models.vision_transformer import ViT, SimpleViT
 from src.data.datasets import TimeSeriesDataset
 from src.training.train import train
 
@@ -54,7 +54,7 @@ def main(config: dict):
 
     # Initialize model
 
-    model = ViT(**config['model']).to(device)
+    model = SimpleViT(**config['model']).to(device)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
     # Initialize datasets

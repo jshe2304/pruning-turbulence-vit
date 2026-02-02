@@ -77,7 +77,11 @@ class TimeSeriesDataset(Dataset):
 
     def _omega_to_uv(self, omega: np.ndarray) -> torch.Tensor:
         nx, ny = omega.shape
-        Kx, Ky, _, _, invKsq = initialize_wavenumbers_rfft2(nx, ny, 2*np.pi, 2*np.pi, INDEXING='ij')
+        Kx, Ky, _, _, invKsq = initialize_wavenumbers_rfft2(
+            nx, ny, 
+            2*np.pi, 2*np.pi, 
+            INDEXING='ij'
+        )
         psi = Omega2Psi(omega, invKsq)
         u, v = Psi2UV(psi, Kx, Ky)
         return torch.tensor(np.stack([u, v]), dtype=torch.float32)

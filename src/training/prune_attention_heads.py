@@ -1,7 +1,11 @@
+'''
+
+'''
+
 import os
 import torch
 
-from .finetune import finetune
+from .train import train
 from .utils import prune_attention_head, num_pruned_heads
 
 def prune_attention_heads(
@@ -22,7 +26,7 @@ def prune_attention_heads(
         validation_dataset: The validation dataset
         num_iterations: The number of iterations to prune
         logger: The wandb logger
-        **finetune_config: Finetuning configuration (see `finetune.py`)
+        **finetune_config: Training configuration (see `train.py`)
     """
 
     local_rank = int(os.environ.get("LOCAL_RANK", "0"))
@@ -57,12 +61,14 @@ def prune_attention_heads(
 
         # Finetune
         
-        optimizer_state = finetune(
-            model, device, 
-            optimizer_state, 
-            train_dataset, validation_dataset, 
-            **finetune_config, 
-            logger=logger, checkpoint_dir=output_dir
+        optimizer_state = train(
+            model, device,
+            train_dataset, validation_dataset,
+            output_dir=output_dir,
+            optimizer_state=optimizer_state,
+            save_best=False,
+            logger=logger,
+            **finetune_config,
         )
 
         # Logging

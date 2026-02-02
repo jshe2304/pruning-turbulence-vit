@@ -82,6 +82,7 @@ def distill(
     warmup_start_factor, warmup_epochs, # Warmup scheduler
     plateau_factor, plateau_patience, # Plateau scheduler
     output_dir, epoch=0, checkpoint_period=None, logger=None, # Logging
+    optimizer_state=None, # Resume from saved optimizer state
     **kwargs
     ):
     """
@@ -125,12 +126,17 @@ def distill(
 
     optimizer = AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
 
+    if optimizer_state is not None:
+        optimizer.load_state_dict(optimizer_state)
+
     # Schedulers
 
-    warmup_steps = warmup_epochs * len(train_dataloader)
-    warmup = lr_scheduler.LinearLR(
-        optimizer, start_factor=warmup_start_factor, total_iters=warmup_steps
-    )
+    warmup = None
+    if optimizer_state is None:
+        warmup_steps = warmup_epochs * len(train_dataloader)
+        warmup = lr_scheduler.LinearLR(
+            optimizer, start_factor=warmup_start_factor, total_iters=warmup_steps
+        )
     scheduler = lr_scheduler.ReduceLROnPlateau(
         optimizer, factor=plateau_factor, patience=plateau_patience
     )
@@ -179,8 +185,10 @@ def distill(
             if epoch % checkpoint_period == 0:
                 torch.save(
                     {
-                        'model_state': model.module.state_dict(), 
+                        'model_state': model.module.state_dict(),
                         'optimizer_state': optimizer.state_dict()
-                    }, 
+                    },
                     os.path.join(checkpoint_dir, f'epoch_{epoch}.tar')
                 )
+
+    return optimizer.state_dict()

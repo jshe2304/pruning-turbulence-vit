@@ -3,7 +3,7 @@ import torch
 import torch.nn.utils.prune as prune
 import torch.distributed as dist
 
-from .finetune import finetune
+from .train import train
 from .utils import compute_importance_scores
 
 def prune_unstructured(
@@ -27,7 +27,7 @@ def prune_unstructured(
         prune_schedule: The schedule of pruning amounts
         epoch_schedule: The schedule of epochs to prune
         logger: The wandb logger
-        **finetune_config: Finetuning configuration (see `finetune.py`)
+        **finetune_config: Training configuration (see `train.py`)
     """
 
     local_rank = int(os.environ.get("LOCAL_RANK", "0"))
@@ -66,13 +66,15 @@ def prune_unstructured(
         
         # Finetune
         
-        optimizer_state = finetune(
-            model, device, 
-            optimizer_state, 
-            train_dataset, validation_dataset, 
-            **finetune_config, 
-            epochs=epochs, 
-            logger=logger, checkpoint_dir=output_dir
+        optimizer_state = train(
+            model, device,
+            train_dataset, validation_dataset,
+            output_dir=output_dir,
+            optimizer_state=optimizer_state,
+            save_best=False,
+            epochs=epochs,
+            logger=logger,
+            **finetune_config,
         )
 
         # Logging

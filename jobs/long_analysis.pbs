@@ -12,4 +12,4 @@ cd /glade/u/home/jshen/pruning-turbulence-vit
 module load conda
 conda activate vit
 
-python scripts/script_long_analysis.py ${config}
+python scripts/long_analysis.py ${config}

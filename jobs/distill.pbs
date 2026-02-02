@@ -15,4 +15,4 @@ module load conda
 module load cuda
 conda activate vit
 
-torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/script_distill.py ${config}
+torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/distill.py ${config}

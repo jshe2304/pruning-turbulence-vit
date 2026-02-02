@@ -11,5 +11,5 @@ cd /glade/u/home/jshen/pruning-turbulence-vit
 module load conda
 conda activate vit
 
-python scripts/script_make_inference.py ${config}
+python scripts/make_inference.py ${config}
 #qsub -v config=configs/inference/long_analysis.toml ./jobs/long_analysis.pbs

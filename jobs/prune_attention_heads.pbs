@@ -15,5 +15,5 @@ module load conda
 module load cuda
 conda activate vit
 
-torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/script_prune_attention_heads.py ${config}
+torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/prune_attention_heads.py ${config}
 qsub -v config=${config} jobs/prune_attention_heads.pbs

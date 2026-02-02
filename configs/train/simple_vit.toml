@@ -1,0 +1,33 @@
+[model]
+img_size = 256
+patch_size = 4
+embed_dim = 128
+depth = 8
+num_heads = 4
+num_frames = 2
+
+[train_dataset]
+data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
+frame_range = [ [200000, 210000], [995000, 1004997], ]
+target_step = 3
+stride = 1
+num_frames = 2
+
+[validation_dataset]
+data_dir = '/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
+frame_range = [ [310000, 312000], ]
+target_step = 3
+stride = 1
+num_frames = 2
+
+[training]
+lr = 0.0005
+weight_decay = 1e-7
+warmup_start_factor = 0.001
+warmup_epochs = 3
+plateau_factor = 0.2
+plateau_patience = 5
+epochs = 1000
+batch_size = 32
+checkpoint_period = 5
+output_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/train/simple_vit/'
