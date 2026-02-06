@@ -102,8 +102,7 @@ def train(
     # Logging paths
 
     if local_rank == 0:
-        checkpoint_dir = os.path.join(output_dir, 'checkpoints')
-        os.makedirs(checkpoint_dir, exist_ok=True)
+        os.makedirs(output_dir, exist_ok=True)
 
     # Dataloader
 
@@ -185,6 +184,9 @@ def train(
 
         if local_rank == 0:
 
+            # Print to stdout for PBS log files
+            print(f"Epoch {epoch:4d} | train_loss={train_loss:.6e} | val_loss={validation_loss:.6e} | lr={optimizer.param_groups[0]['lr']:.2e}")
+
             # Log losses to wandb
 
             if logger is not None:
@@ -211,7 +213,7 @@ def train(
                         'model_state': model.module.state_dict(),
                         'optimizer_state': optimizer.state_dict()
                     },
-                    os.path.join(checkpoint_dir, "best.tar")
+                    os.path.join(output_dir, "best.tar")
                 )
 
             # Save periodic checkpoint
@@ -223,7 +225,7 @@ def train(
                         'model_state': model.module.state_dict(),
                         'optimizer_state': optimizer.state_dict()
                     },
-                    os.path.join(checkpoint_dir, f"epoch_{epoch}.tar")
+                    os.path.join(output_dir, f"epoch_{epoch}.tar")
                 )
 
             # Save last checkpoint (always)
@@ -234,7 +236,7 @@ def train(
                     'model_state': model.module.state_dict(),
                     'optimizer_state': optimizer.state_dict()
                 },
-                os.path.join(checkpoint_dir, "last.tar")
+                os.path.join(output_dir, "last.tar")
             )
 
         # Early stopping

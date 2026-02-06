@@ -39,7 +39,13 @@ def prune_unstructured(
 
     # Iterative pruning
 
-    for p, epochs in zip(prune_schedule, epoch_schedule):
+    for iteration, (p, epochs) in enumerate(zip(prune_schedule, epoch_schedule)):
+
+        if local_rank == 0:
+            print(f"\n{'='*60}")
+            print(f"PRUNING ITERATION {iteration + 1}/{len(prune_schedule)}")
+            print(f"Pruning {p:.1%} of remaining weights, then finetuning for {epochs} epochs")
+            print(f"{'='*60}")
 
         # Prune
 
@@ -54,10 +60,15 @@ def prune_unstructured(
 
         prune.global_unstructured(
             model.module.get_weights(),
-            pruning_method=pruning_method, 
+            pruning_method=pruning_method,
             importance_scores=importance_scores,
-            amount=p, 
+            amount=p,
         )
+
+        if local_rank == 0:
+            total = model.module.n_parameters()
+            pruned = model.module.n_pruned_parameters()
+            print(f"Pruned {pruned:,} / {total:,} parameters ({pruned/total:.1%} sparsity)")
 
         # Optionally restart optimizer
 

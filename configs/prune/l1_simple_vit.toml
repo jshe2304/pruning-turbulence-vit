@@ -1,6 +1,6 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/simple_vit_0_taylor/checkpoints/last.tar"
-output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/simple_vit_0_taylor/checkpoints"
-wandb_id = "3mo3qalu"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/simple_vit_0_l1/checkpoints/last.tar"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/simple_vit_0_l1/checkpoints"
+wandb_id = "6hhkv7ts"
 
 [model]
 img_size = 256
@@ -27,7 +27,7 @@ stride = 1
 num_frames = 2
 
 [pruning]
-importance_metric = 'taylor'
+importance_metric = 'l1'
 prune_schedule = [0, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
 epoch_schedule = [128,  128,  128,  128,  128,  128,  128,  128]
 

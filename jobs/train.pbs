@@ -1,13 +1,12 @@
 #!/bin/bash
 
-#PBS -A UCHI0014
+#PBS -A URIC0009
 #PBS -j oe
 #PBS -k eod
 #PBS -q main
 #PBS -M jshe@uchicago.edu
 #PBS -l walltime=12:00:00
-#PBS -l select=1:ncpus=64:ngpus=4
-#PBS -l gpu_type=a100
+#PBS -l select=1:ncpus=64:ngpus=4:gpu_type=a100
 
 cd /glade/u/home/jshen/pruning-turbulence-vit
 

@@ -6,7 +6,7 @@ import copy
 import numpy as np
 import torch
 
-from src.models.vision_transformer import ViT
+from src.models.vit import ViT
 from src.data.datasets import TimeSeriesDataset
 
 from src.inference.short_analysis import perform_short_analysis

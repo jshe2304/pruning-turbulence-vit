@@ -16,7 +16,7 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.models.vision_transformer import ViT
+from src.models.vit import ViT
 from src.data.datasets import TimeSeriesDataset
 from src.training.prune_attention_heads import prune_attention_heads
 import torch.nn.utils.prune as prune

@@ -19,7 +19,7 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.models.vision_transformer import ViT, SimpleViT
+from src.models import ViT, SimpleViT
 from src.data.datasets import TimeSeriesDataset
 from src.training.train import train
 
@@ -42,6 +42,7 @@ def main(config: dict):
         config['training']['output_dir'] = output_dir
 
     # Initialize wandb (only rank 0 process)
+
 
     logger = wandb.init(
         project="turbulence-vit-train",

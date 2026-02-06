@@ -23,7 +23,7 @@ import torch.distributed as dist
 import torch.nn.utils.prune as prune
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.models.vision_transformer import ViT
+from src.models.simple_vit import SimpleViT
 from src.data.datasets import TimeSeriesDataset
 from src.training.prune_unstructured import prune_unstructured
 
@@ -75,7 +75,7 @@ def main(config: dict):
 
     # Initialize model
 
-    model = ViT(**config['model']).to(device)
+    model = SimpleViT(**config['model']).to(device)
     model.load_state_dict(model_state_dict)
     masks = get_masks(model) # get masks
     bake_masks(model) # bake in masks to remove buffers

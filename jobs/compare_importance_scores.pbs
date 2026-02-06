@@ -5,8 +5,8 @@
 #PBS -k eod
 #PBS -q main
 #PBS -M jshe@uchicago.edu
-#PBS -l walltime=12:00:00
-#PBS -l select=1:ncpus=64:ngpus=4:gpu_type=a100
+#PBS -l walltime=02:00:00
+#PBS -l select=1:ncpus=16:ngpus=1:gpu_type=a100
 
 cd /glade/u/home/jshen/pruning-turbulence-vit
 
@@ -14,4 +14,4 @@ module load conda
 module load cuda
 conda activate vit
 
-torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/prune_unstructured.py ${config}
+python scripts/compare_importance_scores.py configs/compare_importance_scores.toml --amounts 0.1 0.3 0.5

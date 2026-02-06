@@ -1,0 +1,252 @@
+wandb: Currently logged in as: jshe (jshe-university-of-chicago) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: Tracking run with wandb version 0.21.0
+wandb: Run data is saved locally in /glade/u/home/jshen/pruning-turbulence-vit/wandb/run-20260205_100710-6hhkv7ts
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run easy-monkey-134
+wandb: ⭐️ View project at https://wandb.ai/jshe-university-of-chicago/turbulence-vit-prune
+wandb: 🚀 View run at https://wandb.ai/jshe-university-of-chicago/turbulence-vit-prune/runs/6hhkv7ts
+
+============================================================
+PRUNING ITERATION 1/11
+Pruning 6.0% of remaining weights, then finetuning for 128 epochs
+============================================================
+Pruned 94,372 / 1,613,440 parameters (5.8% sparsity)
+Epoch    0 | train_loss=2.627637e-04 | val_loss=2.981836e-04 | lr=1.01e-05
+Epoch    1 | train_loss=2.648687e-04 | val_loss=3.010718e-04 | lr=2.00e-05
+Epoch    2 | train_loss=2.638674e-04 | val_loss=2.994854e-04 | lr=2.00e-05
+Epoch    3 | train_loss=2.636567e-04 | val_loss=2.988182e-04 | lr=1.00e-05
+Epoch    4 | train_loss=2.596906e-04 | val_loss=2.951121e-04 | lr=1.00e-05
+Epoch    5 | train_loss=2.603822e-04 | val_loss=2.963198e-04 | lr=1.00e-05
+Epoch    6 | train_loss=2.593503e-04 | val_loss=2.946369e-04 | lr=1.00e-05
+Epoch    7 | train_loss=2.595483e-04 | val_loss=2.946327e-04 | lr=1.00e-05
+Epoch    8 | train_loss=2.600570e-04 | val_loss=2.953320e-04 | lr=1.00e-05
+Epoch    9 | train_loss=2.589828e-04 | val_loss=2.944494e-04 | lr=1.00e-05
+Epoch   10 | train_loss=2.583789e-04 | val_loss=2.928968e-04 | lr=1.00e-05
+Epoch   11 | train_loss=2.580437e-04 | val_loss=2.930395e-04 | lr=1.00e-05
+Epoch   12 | train_loss=2.581552e-04 | val_loss=2.931885e-04 | lr=1.00e-05
+Epoch   13 | train_loss=2.579431e-04 | val_loss=2.929778e-04 | lr=5.00e-06
+Epoch   14 | train_loss=2.556694e-04 | val_loss=2.907587e-04 | lr=5.00e-06
+Epoch   15 | train_loss=2.556580e-04 | val_loss=2.901262e-04 | lr=5.00e-06
+Epoch   16 | train_loss=2.553212e-04 | val_loss=2.897412e-04 | lr=5.00e-06
+Epoch   17 | train_loss=2.555588e-04 | val_loss=2.898728e-04 | lr=5.00e-06
+Epoch   18 | train_loss=2.552469e-04 | val_loss=2.899911e-04 | lr=5.00e-06
+Epoch   19 | train_loss=2.550924e-04 | val_loss=2.893173e-04 | lr=5.00e-06
+Epoch   20 | train_loss=2.547445e-04 | val_loss=2.894860e-04 | lr=5.00e-06
+Epoch   21 | train_loss=2.547287e-04 | val_loss=2.891598e-04 | lr=5.00e-06
+Epoch   22 | train_loss=2.545811e-04 | val_loss=2.894338e-04 | lr=5.00e-06
+Epoch   23 | train_loss=2.544092e-04 | val_loss=2.887786e-04 | lr=5.00e-06
+Epoch   24 | train_loss=2.539299e-04 | val_loss=2.888258e-04 | lr=5.00e-06
+Epoch   25 | train_loss=2.541790e-04 | val_loss=2.883932e-04 | lr=5.00e-06
+Epoch   26 | train_loss=2.539646e-04 | val_loss=2.883988e-04 | lr=5.00e-06
+Epoch   27 | train_loss=2.538464e-04 | val_loss=2.880926e-04 | lr=5.00e-06
+Epoch   28 | train_loss=2.540673e-04 | val_loss=2.888440e-04 | lr=5.00e-06
+Epoch   29 | train_loss=2.532013e-04 | val_loss=2.871295e-04 | lr=5.00e-06
+Epoch   30 | train_loss=2.536729e-04 | val_loss=2.879780e-04 | lr=5.00e-06
+Epoch   31 | train_loss=2.533844e-04 | val_loss=2.878699e-04 | lr=5.00e-06
+Epoch   32 | train_loss=2.531783e-04 | val_loss=2.876695e-04 | lr=2.50e-06
+Epoch   33 | train_loss=2.521913e-04 | val_loss=2.860077e-04 | lr=2.50e-06
+Epoch   34 | train_loss=2.517923e-04 | val_loss=2.859308e-04 | lr=2.50e-06
+Epoch   35 | train_loss=2.518438e-04 | val_loss=2.858086e-04 | lr=2.50e-06
+Epoch   36 | train_loss=2.516753e-04 | val_loss=2.855405e-04 | lr=2.50e-06
+Epoch   37 | train_loss=2.518944e-04 | val_loss=2.861699e-04 | lr=2.50e-06
+Epoch   38 | train_loss=2.515656e-04 | val_loss=2.858165e-04 | lr=2.50e-06
+Epoch   39 | train_loss=2.514916e-04 | val_loss=2.851019e-04 | lr=2.50e-06
+Epoch   40 | train_loss=2.514310e-04 | val_loss=2.855969e-04 | lr=2.50e-06
+Epoch   41 | train_loss=2.515062e-04 | val_loss=2.856943e-04 | lr=2.50e-06
+Epoch   42 | train_loss=2.512817e-04 | val_loss=2.855483e-04 | lr=1.25e-06
+Epoch   43 | train_loss=2.507610e-04 | val_loss=2.848040e-04 | lr=1.25e-06
+Epoch   44 | train_loss=2.506345e-04 | val_loss=2.847682e-04 | lr=1.25e-06
+Epoch   45 | train_loss=2.505957e-04 | val_loss=2.847204e-04 | lr=1.25e-06
+Epoch   46 | train_loss=2.505885e-04 | val_loss=2.844384e-04 | lr=1.25e-06
+Epoch   47 | train_loss=2.505150e-04 | val_loss=2.845603e-04 | lr=1.25e-06
+Epoch   48 | train_loss=2.505520e-04 | val_loss=2.848130e-04 | lr=1.25e-06
+Epoch   49 | train_loss=2.505237e-04 | val_loss=2.844891e-04 | lr=6.25e-07
+
+============================================================
+PRUNING ITERATION 2/11
+Pruning 6.0% of remaining weights, then finetuning for 128 epochs
+============================================================
+Pruned 183,082 / 1,613,440 parameters (11.3% sparsity)
+Epoch    0 | train_loss=2.659911e-04 | val_loss=3.010700e-04 | lr=1.01e-05
+Epoch    1 | train_loss=2.614164e-04 | val_loss=2.964113e-04 | lr=2.00e-05
+Epoch    2 | train_loss=2.582517e-04 | val_loss=2.923847e-04 | lr=2.00e-05
+Epoch    3 | train_loss=2.576387e-04 | val_loss=2.915053e-04 | lr=2.00e-05
+Epoch    4 | train_loss=2.570191e-04 | val_loss=2.905140e-04 | lr=2.00e-05
+Epoch    5 | train_loss=2.574012e-04 | val_loss=2.910442e-04 | lr=2.00e-05
+Epoch    6 | train_loss=2.551295e-04 | val_loss=2.894392e-04 | lr=2.00e-05
+Epoch    7 | train_loss=2.542917e-04 | val_loss=2.878789e-04 | lr=2.00e-05
+Epoch    8 | train_loss=2.543892e-04 | val_loss=2.875052e-04 | lr=2.00e-05
+Epoch    9 | train_loss=2.545692e-04 | val_loss=2.875407e-04 | lr=2.00e-05
+Epoch   10 | train_loss=2.535935e-04 | val_loss=2.874767e-04 | lr=2.00e-05
+Epoch   11 | train_loss=2.528291e-04 | val_loss=2.867679e-04 | lr=2.00e-05
+Epoch   12 | train_loss=2.533955e-04 | val_loss=2.869993e-04 | lr=2.00e-05
+Epoch   13 | train_loss=2.523404e-04 | val_loss=2.853129e-04 | lr=2.00e-05
+Epoch   14 | train_loss=2.516686e-04 | val_loss=2.851268e-04 | lr=2.00e-05
+Epoch   15 | train_loss=2.514484e-04 | val_loss=2.847873e-04 | lr=2.00e-05
+Epoch   16 | train_loss=2.515483e-04 | val_loss=2.849827e-04 | lr=2.00e-05
+Epoch   17 | train_loss=2.527581e-04 | val_loss=2.869053e-04 | lr=2.00e-05
+Epoch   18 | train_loss=2.501150e-04 | val_loss=2.830740e-04 | lr=2.00e-05
+Epoch   19 | train_loss=2.511990e-04 | val_loss=2.833961e-04 | lr=2.00e-05
+Epoch   20 | train_loss=2.512218e-04 | val_loss=2.830496e-04 | lr=2.00e-05
+Epoch   21 | train_loss=2.494098e-04 | val_loss=2.828800e-04 | lr=2.00e-05
+Epoch   22 | train_loss=2.512710e-04 | val_loss=2.834017e-04 | lr=2.00e-05
+Epoch   23 | train_loss=2.490434e-04 | val_loss=2.811657e-04 | lr=2.00e-05
+Epoch   24 | train_loss=2.473128e-04 | val_loss=2.801164e-04 | lr=2.00e-05
+Epoch   25 | train_loss=2.486132e-04 | val_loss=2.810740e-04 | lr=2.00e-05
+Epoch   26 | train_loss=2.471192e-04 | val_loss=2.798553e-04 | lr=2.00e-05
+Epoch   27 | train_loss=2.477298e-04 | val_loss=2.805752e-04 | lr=2.00e-05
+Epoch   28 | train_loss=2.467103e-04 | val_loss=2.782661e-04 | lr=2.00e-05
+Epoch   29 | train_loss=2.464905e-04 | val_loss=2.786324e-04 | lr=2.00e-05
+Epoch   30 | train_loss=2.463731e-04 | val_loss=2.782970e-04 | lr=2.00e-05
+Epoch   31 | train_loss=2.449941e-04 | val_loss=2.774746e-04 | lr=2.00e-05
+Epoch   32 | train_loss=2.461040e-04 | val_loss=2.775595e-04 | lr=2.00e-05
+Epoch   33 | train_loss=2.461455e-04 | val_loss=2.781299e-04 | lr=2.00e-05
+Epoch   34 | train_loss=2.449951e-04 | val_loss=2.778792e-04 | lr=1.00e-05
+Epoch   35 | train_loss=2.417337e-04 | val_loss=2.741732e-04 | lr=1.00e-05
+Epoch   36 | train_loss=2.414982e-04 | val_loss=2.738874e-04 | lr=1.00e-05
+Epoch   37 | train_loss=2.413027e-04 | val_loss=2.732869e-04 | lr=1.00e-05
+Epoch   38 | train_loss=2.412638e-04 | val_loss=2.736808e-04 | lr=1.00e-05
+Epoch   39 | train_loss=2.405864e-04 | val_loss=2.726295e-04 | lr=1.00e-05
+Epoch   40 | train_loss=2.409650e-04 | val_loss=2.726048e-04 | lr=1.00e-05
+Epoch   41 | train_loss=2.410201e-04 | val_loss=2.727251e-04 | lr=1.00e-05
+Epoch   42 | train_loss=2.418344e-04 | val_loss=2.734509e-04 | lr=5.00e-06
+Epoch   43 | train_loss=2.387001e-04 | val_loss=2.707158e-04 | lr=5.00e-06
+Epoch   44 | train_loss=2.387180e-04 | val_loss=2.702139e-04 | lr=5.00e-06
+Epoch   45 | train_loss=2.387049e-04 | val_loss=2.706479e-04 | lr=5.00e-06
+Epoch   46 | train_loss=2.387792e-04 | val_loss=2.702807e-04 | lr=5.00e-06
+Epoch   47 | train_loss=2.386360e-04 | val_loss=2.707079e-04 | lr=2.50e-06
+Epoch   48 | train_loss=2.373771e-04 | val_loss=2.690068e-04 | lr=2.50e-06
+Epoch   49 | train_loss=2.378309e-04 | val_loss=2.693070e-04 | lr=2.50e-06
+Epoch   50 | train_loss=2.374159e-04 | val_loss=2.692145e-04 | lr=2.50e-06
+Epoch   51 | train_loss=2.374914e-04 | val_loss=2.692492e-04 | lr=1.25e-06
+Epoch   52 | train_loss=2.368244e-04 | val_loss=2.682534e-04 | lr=1.25e-06
+Epoch   53 | train_loss=2.367223e-04 | val_loss=2.681560e-04 | lr=1.25e-06
+Epoch   54 | train_loss=2.367684e-04 | val_loss=2.685370e-04 | lr=1.25e-06
+Epoch   55 | train_loss=2.368073e-04 | val_loss=2.683647e-04 | lr=1.25e-06
+Epoch   56 | train_loss=2.367016e-04 | val_loss=2.681765e-04 | lr=6.25e-07
+
+============================================================
+PRUNING ITERATION 3/11
+Pruning 6.0% of remaining weights, then finetuning for 128 epochs
+============================================================
+Pruned 266,469 / 1,613,440 parameters (16.5% sparsity)
+Epoch    0 | train_loss=2.886689e-04 | val_loss=3.217946e-04 | lr=1.01e-05
+Epoch    1 | train_loss=2.567218e-04 | val_loss=2.887741e-04 | lr=2.00e-05
+Epoch    2 | train_loss=2.494907e-04 | val_loss=2.817159e-04 | lr=2.00e-05
+Epoch    3 | train_loss=2.469173e-04 | val_loss=2.777631e-04 | lr=2.00e-05
+Epoch    4 | train_loss=2.468620e-04 | val_loss=2.780276e-04 | lr=2.00e-05
+Epoch    5 | train_loss=2.451560e-04 | val_loss=2.764352e-04 | lr=2.00e-05
+Epoch    6 | train_loss=2.428664e-04 | val_loss=2.745524e-04 | lr=2.00e-05
+Epoch    7 | train_loss=2.438582e-04 | val_loss=2.754752e-04 | lr=2.00e-05
+Epoch    8 | train_loss=2.415711e-04 | val_loss=2.721645e-04 | lr=2.00e-05
+Epoch    9 | train_loss=2.426909e-04 | val_loss=2.727721e-04 | lr=2.00e-05
+Epoch   10 | train_loss=2.409503e-04 | val_loss=2.724180e-04 | lr=2.00e-05
+Epoch   11 | train_loss=2.408259e-04 | val_loss=2.723234e-04 | lr=1.00e-05
+Epoch   12 | train_loss=2.376548e-04 | val_loss=2.689397e-04 | lr=1.00e-05
+Epoch   13 | train_loss=2.377101e-04 | val_loss=2.687743e-04 | lr=1.00e-05
+Epoch   14 | train_loss=2.368708e-04 | val_loss=2.675185e-04 | lr=1.00e-05
+Epoch   15 | train_loss=2.368139e-04 | val_loss=2.670897e-04 | lr=1.00e-05
+Epoch   16 | train_loss=2.368882e-04 | val_loss=2.674634e-04 | lr=1.00e-05
+Epoch   17 | train_loss=2.363720e-04 | val_loss=2.670910e-04 | lr=1.00e-05
+Epoch   18 | train_loss=2.362642e-04 | val_loss=2.665858e-04 | lr=1.00e-05
+Epoch   19 | train_loss=2.354473e-04 | val_loss=2.660273e-04 | lr=1.00e-05
+Epoch   20 | train_loss=2.365641e-04 | val_loss=2.673850e-04 | lr=1.00e-05
+Epoch   21 | train_loss=2.354006e-04 | val_loss=2.658833e-04 | lr=1.00e-05
+Epoch   22 | train_loss=2.354084e-04 | val_loss=2.661270e-04 | lr=1.00e-05
+Epoch   23 | train_loss=2.345234e-04 | val_loss=2.647878e-04 | lr=1.00e-05
+Epoch   24 | train_loss=2.339619e-04 | val_loss=2.646252e-04 | lr=1.00e-05
+Epoch   25 | train_loss=2.347101e-04 | val_loss=2.653249e-04 | lr=1.00e-05
+Epoch   26 | train_loss=2.342619e-04 | val_loss=2.646762e-04 | lr=1.00e-05
+Epoch   27 | train_loss=2.341808e-04 | val_loss=2.644265e-04 | lr=1.00e-05
+Epoch   28 | train_loss=2.334389e-04 | val_loss=2.640089e-04 | lr=1.00e-05
+Epoch   29 | train_loss=2.335063e-04 | val_loss=2.633878e-04 | lr=1.00e-05
+Epoch   30 | train_loss=2.336647e-04 | val_loss=2.642095e-04 | lr=1.00e-05
+Epoch   31 | train_loss=2.340132e-04 | val_loss=2.641345e-04 | lr=1.00e-05
+Epoch   32 | train_loss=2.332176e-04 | val_loss=2.628171e-04 | lr=1.00e-05
+Epoch   33 | train_loss=2.325604e-04 | val_loss=2.631362e-04 | lr=1.00e-05
+Epoch   34 | train_loss=2.333963e-04 | val_loss=2.640896e-04 | lr=1.00e-05
+Epoch   35 | train_loss=2.326081e-04 | val_loss=2.631369e-04 | lr=5.00e-06
+Epoch   36 | train_loss=2.309747e-04 | val_loss=2.609631e-04 | lr=5.00e-06
+Epoch   37 | train_loss=2.310803e-04 | val_loss=2.611728e-04 | lr=5.00e-06
+Epoch   38 | train_loss=2.308048e-04 | val_loss=2.610690e-04 | lr=5.00e-06
+Epoch   39 | train_loss=2.305593e-04 | val_loss=2.604985e-04 | lr=5.00e-06
+Epoch   40 | train_loss=2.306939e-04 | val_loss=2.606291e-04 | lr=5.00e-06
+Epoch   41 | train_loss=2.305584e-04 | val_loss=2.607298e-04 | lr=5.00e-06
+Epoch   42 | train_loss=2.307284e-04 | val_loss=2.607827e-04 | lr=2.50e-06
+Epoch   43 | train_loss=2.293576e-04 | val_loss=2.594194e-04 | lr=2.50e-06
+Epoch   44 | train_loss=2.292468e-04 | val_loss=2.591737e-04 | lr=2.50e-06
+Epoch   45 | train_loss=2.291480e-04 | val_loss=2.591808e-04 | lr=2.50e-06
+Epoch   46 | train_loss=2.291949e-04 | val_loss=2.593152e-04 | lr=2.50e-06
+Epoch   47 | train_loss=2.292616e-04 | val_loss=2.594452e-04 | lr=1.25e-06
+Epoch   48 | train_loss=2.288068e-04 | val_loss=2.588909e-04 | lr=1.25e-06
+Epoch   49 | train_loss=2.288634e-04 | val_loss=2.588321e-04 | lr=1.25e-06
+Epoch   50 | train_loss=2.287438e-04 | val_loss=2.586157e-04 | lr=1.25e-06
+Epoch   51 | train_loss=2.286085e-04 | val_loss=2.586303e-04 | lr=1.25e-06
+Epoch   52 | train_loss=2.286299e-04 | val_loss=2.584206e-04 | lr=1.25e-06
+Epoch   53 | train_loss=2.285003e-04 | val_loss=2.582961e-04 | lr=1.25e-06
+Epoch   54 | train_loss=2.285340e-04 | val_loss=2.585829e-04 | lr=1.25e-06
+Epoch   55 | train_loss=2.285673e-04 | val_loss=2.585025e-04 | lr=1.25e-06
+Epoch   56 | train_loss=2.285087e-04 | val_loss=2.582957e-04 | lr=6.25e-07
+
+============================================================
+PRUNING ITERATION 4/11
+Pruning 6.0% of remaining weights, then finetuning for 128 epochs
+============================================================
+Pruned 344,853 / 1,613,440 parameters (21.4% sparsity)
+Epoch    0 | train_loss=3.458250e-04 | val_loss=3.784739e-04 | lr=1.01e-05
+Epoch    1 | train_loss=2.683132e-04 | val_loss=3.005118e-04 | lr=2.00e-05
+Epoch    2 | train_loss=2.513552e-04 | val_loss=2.816731e-04 | lr=2.00e-05
+Epoch    3 | train_loss=2.455907e-04 | val_loss=2.754546e-04 | lr=2.00e-05
+Epoch    4 | train_loss=2.428958e-04 | val_loss=2.727513e-04 | lr=2.00e-05
+Epoch    5 | train_loss=2.415795e-04 | val_loss=2.719310e-04 | lr=2.00e-05
+Epoch    6 | train_loss=2.395146e-04 | val_loss=2.699368e-04 | lr=2.00e-05
+Epoch    7 | train_loss=2.378614e-04 | val_loss=2.679861e-04 | lr=2.00e-05
+Epoch    8 | train_loss=2.374068e-04 | val_loss=2.664943e-04 | lr=2.00e-05
+Epoch    9 | train_loss=2.362848e-04 | val_loss=2.654064e-04 | lr=2.00e-05
+Epoch   10 | train_loss=2.355989e-04 | val_loss=2.658793e-04 | lr=2.00e-05
+Epoch   11 | train_loss=2.351190e-04 | val_loss=2.653269e-04 | lr=2.00e-05
+Epoch   12 | train_loss=2.344293e-04 | val_loss=2.641980e-04 | lr=2.00e-05
+Epoch   13 | train_loss=2.336020e-04 | val_loss=2.625770e-04 | lr=2.00e-05
+Epoch   14 | train_loss=2.321459e-04 | val_loss=2.619173e-04 | lr=2.00e-05
+Epoch   15 | train_loss=2.334824e-04 | val_loss=2.635298e-04 | lr=2.00e-05
+Epoch   16 | train_loss=2.321996e-04 | val_loss=2.618814e-04 | lr=2.00e-05
+Epoch   17 | train_loss=2.329527e-04 | val_loss=2.623826e-04 | lr=2.00e-05
+Epoch   18 | train_loss=2.311970e-04 | val_loss=2.607530e-04 | lr=2.00e-05
+Epoch   19 | train_loss=2.320586e-04 | val_loss=2.608093e-04 | lr=2.00e-05
+Epoch   20 | train_loss=2.326775e-04 | val_loss=2.610077e-04 | lr=2.00e-05
+Epoch   21 | train_loss=2.308014e-04 | val_loss=2.605056e-04 | lr=2.00e-05
+Epoch   22 | train_loss=2.347133e-04 | val_loss=2.632355e-04 | lr=2.00e-05
+Epoch   23 | train_loss=2.297001e-04 | val_loss=2.585566e-04 | lr=2.00e-05
+Epoch   24 | train_loss=2.287367e-04 | val_loss=2.582494e-04 | lr=2.00e-05
+Epoch   25 | train_loss=2.307686e-04 | val_loss=2.595276e-04 | lr=2.00e-05
+Epoch   26 | train_loss=2.286599e-04 | val_loss=2.580751e-04 | lr=2.00e-05
+Epoch   27 | train_loss=2.290765e-04 | val_loss=2.581430e-04 | lr=2.00e-05
+Epoch   28 | train_loss=2.293817e-04 | val_loss=2.574965e-04 | lr=2.00e-05
+=>> PBS: job killed: walltime 43275 exceeded limit 43200
+W0205 22:07:29.595000 19817 site-packages/torch/distributed/elastic/agent/server/api.py:719] Received Signals.SIGTERM death signal, shutting down workers
+W0205 22:07:29.621000 19817 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 22660 closing signal SIGTERM
+W0205 22:07:29.638000 19817 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 22662 closing signal SIGTERM
+W0205 22:07:29.638000 19817 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 22664 closing signal SIGTERM
+W0205 22:07:29.639000 19817 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 22665 closing signal SIGTERM
+Traceback (most recent call last):
+  File "/glade/work/jshen/conda-envs/vit/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/run.py", line 892, in main
+    run(args)
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 261, in launch_agent
+    result = agent.run()
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py", line 138, in wrapper
+    result = f(*args, **kwargs)
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 711, in run
+    result = self._invoke_run(role)
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 870, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 84, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 19817 got signal: 15

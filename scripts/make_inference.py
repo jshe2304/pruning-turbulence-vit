@@ -5,7 +5,7 @@ import copy
 
 import torch
 
-from src.models.vision_transformer import ViT
+from src.models.vit import ViT
 from src.data.datasets import TimeSeriesDataset
 
 from src.inference.make_inference import make_inference
