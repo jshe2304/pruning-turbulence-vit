@@ -16,3 +16,6 @@ Epoch    1 | train_loss=2.038111e-04 | val_loss=2.209552e-04 | lr=1.00e-05
 Epoch    2 | train_loss=2.028199e-04 | val_loss=2.207466e-04 | lr=1.00e-05
 Epoch    3 | train_loss=2.027555e-04 | val_loss=2.201993e-04 | lr=1.00e-05
 Epoch    4 | train_loss=2.036840e-04 | val_loss=2.209891e-04 | lr=1.00e-05
+Epoch    5 | train_loss=2.031394e-04 | val_loss=2.208682e-04 | lr=1.00e-05
+Epoch    6 | train_loss=2.029720e-04 | val_loss=2.211494e-04 | lr=5.00e-06
+Epoch    7 | train_loss=2.014484e-04 | val_loss=2.192107e-04 | lr=5.00e-06

@@ -123,7 +123,7 @@ def train(
 
     warmup = None
     if optimizer_state is None:
-        warmup_steps = warmup_epochs * len(train_dataloader)
+        warmup_steps = int(warmup_epochs * len(train_dataloader))
         warmup = lr_scheduler.LinearLR(
             optimizer, start_factor=warmup_start_factor, total_iters=warmup_steps
         )
