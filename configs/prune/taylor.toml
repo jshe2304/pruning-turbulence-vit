@@ -3,6 +3,7 @@ output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/simple_vit_0_t
 wandb_id = "3mo3qalu"
 
 [model]
+model_type = "ViT"
 img_size = 256
 patch_size = 4
 embed_dim = 128

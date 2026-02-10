@@ -2,6 +2,7 @@ checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/l1_new/checkpoints/32
 output_dir = "/glade/derecho/scratch/jshen/prune_base/l1_new/inferences/32.15/"
 
 [model]
+model_type = "EncoderDecoderViT"
 img_size = 256
 patch_size = 4
 tubelet_size = 2

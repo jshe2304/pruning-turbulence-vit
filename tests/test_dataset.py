@@ -115,7 +115,7 @@ class TestMultiPy2DDataset:
 
     def test_getitem_shapes(self):
         ds = MultiPy2DDataset(RE_DIRS, **MULTI_RE_KWARGS, num_frames=2)
-        inp, tgt, re = ds[0]
+        inp, re, tgt = ds[0]
         assert inp.shape == (2, 2, 256, 256)
         assert tgt.shape == (2, 1, 256, 256)
         assert re.shape == ()
@@ -123,7 +123,7 @@ class TestMultiPy2DDataset:
 
     def test_no_nans(self):
         ds = MultiPy2DDataset(RE_DIRS, **MULTI_RE_KWARGS)
-        inp, tgt, re = ds[0]
+        inp, re, tgt = ds[0]
         assert not torch.isnan(inp).any()
         assert not torch.isnan(tgt).any()
 
@@ -133,8 +133,8 @@ class TestMultiPy2DDataset:
 
     def test_reynolds_values_in_samples(self):
         ds = MultiPy2DDataset(RE_DIRS, **MULTI_RE_KWARGS)
-        _, _, re_first = ds[0]
-        _, _, re_last = ds[len(ds) - 1]
+        _, re_first, _ = ds[0]
+        _, re_last, _ = ds[len(ds) - 1]
         assert re_first.item() == 2000.0
         assert re_last.item() == 4000.0
 
@@ -142,13 +142,13 @@ class TestMultiPy2DDataset:
         ds = MultiPy2DDataset(RE_DIRS, **MULTI_RE_KWARGS)
         per_dir = len(ds) // len(RE_DIRS)
         for i in range(per_dir):
-            _, _, re_val = ds[i]
+            _, re_val, _ = ds[i]
             assert re_val.item() == 2000.0
         for i in range(per_dir, 2 * per_dir):
-            _, _, re_val = ds[i]
+            _, re_val, _ = ds[i]
             assert re_val.item() == 3000.0
         for i in range(2 * per_dir, len(ds)):
-            _, _, re_val = ds[i]
+            _, re_val, _ = ds[i]
             assert re_val.item() == 4000.0
 
     def test_empty_when_no_valid_frames(self):

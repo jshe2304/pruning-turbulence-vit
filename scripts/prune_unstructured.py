@@ -15,7 +15,7 @@ import torch.distributed as dist
 import torch.nn.utils.prune as prune
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.models.simple_vit import SimpleViT
+from src.models import create_model
 from src.data.py2d_dataset import Py2DDataset
 from src.training.prune_unstructured import prune_unstructured
 
@@ -67,7 +67,7 @@ def main(config: dict):
 
     # Initialize model
 
-    model = SimpleViT(**config['model']).to(device)
+    model = create_model(**config['model']).to(device)
     model.load_state_dict(model_state_dict)
     masks = get_masks(model) # get masks
     bake_masks(model) # bake in masks to remove buffers

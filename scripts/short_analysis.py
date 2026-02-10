@@ -6,7 +6,7 @@ import copy
 import numpy as np
 import torch
 
-from src.models.vit import ViT
+from src.models import create_model
 from src.data.py2d_dataset import Py2DDataset
 
 from src.inference.short_analysis import perform_short_analysis
@@ -17,7 +17,7 @@ def main(config: dict):
 
     # Create model
     
-    model = ViT(**config['model'])
+    model = create_model(**config['model'])
     state_dict = torch.load(config['checkpoint_file'], map_location=device, weights_only=False)
     optimizer_state = state_dict.pop('optimizer_state', None)
     model_state_dict = state_dict.pop('model_state', state_dict)

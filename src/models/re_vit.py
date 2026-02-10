@@ -41,7 +41,7 @@ class ReynoldsEmbedding(nn.Module):
         return self.mlp(re_log).unsqueeze(1)  # (B, 1, embed_dim)
 
 
-class ReSimpleViT(nn.Module):
+class ReViT(nn.Module):
     """
     Encoder-only Vision Transformer with Reynolds number conditioning.
     Reynolds number is embedded via a small MLP and added to token embeddings.

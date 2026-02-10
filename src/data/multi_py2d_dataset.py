@@ -40,4 +40,4 @@ class MultiPy2DDataset(ConcatDataset):
         input_frames, target_frame = self.datasets[ds_idx][sample_idx]
         reynolds = torch.tensor(self.reynolds_numbers[ds_idx], dtype=torch.float32)
 
-        return input_frames, target_frame, reynolds
+        return input_frames, reynolds, target_frame

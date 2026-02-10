@@ -34,15 +34,16 @@ def train_one_epoch(
     """
 
     model.train()
-    for ic, target in train_dataloader:
-        ic, target = ic.to(device), target.to(device)
+    for *inputs, target in train_dataloader:
+        inputs = [x.to(device) for x in inputs]
+        target = target.to(device)
 
         optimizer.zero_grad()
 
         for _ in range(num_rollout_steps):
-            y_pred = model(ic)
-            prev_ic = ic[:, :, :-1, :, :].contiguous()
-            ic = torch.cat([y_pred, prev_ic], dim=2)
+            y_pred = model(*inputs)
+            prev_ic = inputs[0][:, :, :-1, :, :].contiguous()
+            inputs[0] = torch.cat([y_pred, prev_ic], dim=2)
 
         loss = F.mse_loss(y_pred, target)
         loss.backward()

@@ -2,6 +2,7 @@ checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/l1/checkpoints/22.52.
 output_file = "/glade/derecho/scratch/jshen/prune_base/l1/gifs/22.52.gif"
 
 [model]
+model_type = "EncoderDecoderViT"
 img_size = 256
 patch_size = 4
 tubelet_size = 2

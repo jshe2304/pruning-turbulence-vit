@@ -16,19 +16,14 @@ import torch.nn.utils.prune as prune
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-from src.models.vit import ViT
-from src.models.simple_vit import SimpleViT
+from src.models import create_model
 from src.data.py2d_dataset import Py2DDataset
 from src.training.utils.importance_scores import compute_importance_scores
 
 METRICS = ['l1', 'taylor', 'fisher', 'random']
 
 def load_model(config, device):
-    model_config = config['model']
-    if 'encoder_embed_dim' in model_config:
-        model = ViT(**model_config)
-    else:
-        model = SimpleViT(**model_config)
+    model = create_model(**config['model'])
 
     state_dict = torch.load(config['checkpoint_file'], map_location=device, weights_only=False)
     model_state = state_dict.get('model_state', state_dict)

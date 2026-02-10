@@ -5,7 +5,7 @@ import copy
 
 import torch
 
-from src.models.vit import ViT
+from src.models import create_model
 from src.data.py2d_dataset import Py2DDataset
 
 from src.inference.make_gif import make_gif
@@ -16,7 +16,7 @@ def main(config: dict):
 
     # Initiate and load model
     
-    model = ViT(**config['model'])
+    model = create_model(**config['model'])
     state_dict = torch.load(config['checkpoint_file'], map_location=device, weights_only=False)
     optimizer_state = state_dict.pop('optimizer_state', None)
     model_state_dict = state_dict.pop('model_state', state_dict)

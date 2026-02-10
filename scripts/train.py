@@ -19,8 +19,9 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.models import ViT, SimpleViT
+from src.models import create_model
 from src.data.py2d_dataset import Py2DDataset
+from src.data.multi_py2d_dataset import MultiPy2DDataset
 from src.training.train import train
 
 def main(config: dict):
@@ -55,13 +56,14 @@ def main(config: dict):
 
     # Initialize model
 
-    model = SimpleViT(**config['model']).to(device)
+    model = create_model(**config['model']).to(device)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
     # Initialize datasets
 
-    train_dataset = Py2DDataset(**config['train_dataset'])
-    validation_dataset = Py2DDataset(**config['validation_dataset'])
+    DatasetClass = MultiPy2DDataset if 'data_dirs' in config['train_dataset'] else Py2DDataset
+    train_dataset = DatasetClass(**config['train_dataset'])
+    validation_dataset = DatasetClass(**config['validation_dataset'])
 
     # Train model
 

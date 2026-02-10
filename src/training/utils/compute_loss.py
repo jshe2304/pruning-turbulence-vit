@@ -27,16 +27,17 @@ def compute_loss(model, dataset, num_rollout_steps, n_samples=4096, batch_size=3
     if sampler is not None: sampler.set_epoch(0)
     
     total_loss, samples_processed = 0., 0
-    for ic, target in dataloader:
+    for *inputs, target in dataloader:
         if samples_processed >= n_samples: break
-        ic, target = ic.to(device), target.to(device)
-        
-        this_batch_size = ic.size(0)
+        inputs = [x.to(device) for x in inputs]
+        target = target.to(device)
+
+        this_batch_size = inputs[0].size(0)
 
         for _ in range(num_rollout_steps):
-            y_pred = model(ic)
-            prev_ic = ic[:, :, :-1, :, :].contiguous()
-            ic = torch.cat([y_pred, prev_ic], dim=2)
+            y_pred = model(*inputs)
+            prev_ic = inputs[0][:, :, :-1, :, :].contiguous()
+            inputs[0] = torch.cat([y_pred, prev_ic], dim=2)
 
         sample_loss = F.mse_loss(y_pred, target).item()
         batch_loss = sample_loss * this_batch_size

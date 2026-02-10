@@ -1,6 +1,7 @@
 checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/simple_vit_0/checkpoints/best.tar"
 
 [model]
+model_type = "ViT"
 img_size = 256
 patch_size = 4
 embed_dim = 128

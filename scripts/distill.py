@@ -19,7 +19,7 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.models.vit import ViT
+from src.models import create_model
 from src.data.py2d_dataset import Py2DDataset
 from src.training.distill import distill
 
@@ -54,7 +54,7 @@ def main(config: dict):
 
     # Initialize model
 
-    model = ViT(**config['model']).to(device)
+    model = create_model(**config['model']).to(device)
     if 'student_checkpoint_file' in config:
         state_dict = torch.load(config['student_checkpoint_file'], map_location=device, weights_only=False)
         model.load_state_dict(state_dict)
@@ -62,7 +62,7 @@ def main(config: dict):
 
     # Initialize teacher model
 
-    teacher = ViT(**config['teacher']).to(device)
+    teacher = create_model(**config['teacher']).to(device)
     state_dict = torch.load(config['teacher_checkpoint_file'], map_location=device, weights_only=False)
     teacher.load_state_dict(state_dict)
     teacher = DDP(teacher, device_ids=[local_rank], output_device=local_rank)

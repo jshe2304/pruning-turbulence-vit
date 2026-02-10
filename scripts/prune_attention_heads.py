@@ -16,7 +16,7 @@ import torch
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.models.vit import ViT
+from src.models import create_model
 from src.data.py2d_dataset import Py2DDataset
 from src.training.prune_attention_heads import prune_attention_heads
 import torch.nn.utils.prune as prune
@@ -53,7 +53,7 @@ def main(config: dict):
 
     # Initialize model
     
-    model = ViT(**config['model']).to(device)
+    model = create_model(**config['model']).to(device)
     model.load_state_dict(model_state_dict)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 

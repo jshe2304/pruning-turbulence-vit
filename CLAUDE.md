@@ -20,33 +20,42 @@ For example, @/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r
 - Timestep 0.0002
 - Initial condition 1
 
+## Project pipeline
+
+The pipeline is as follows:
+1. Train model
+2. Prune model (optional)
+3. Run short analysis
+4. Run inference
+5. Run long analysis (needs inference)
+
 ## Package organization
 
-### `src/models/`
+`src/models/`
 - `vision_transformer.py`: Encoder-decoder Vision Transformer
 - `modules/`: Implementations of attention, mlp, embeddings, positional encodings, conv (SubPixel 3D decoder)
 
-### `src/training/`
+`src/training/`
 - `train.py`: Standard supervised training loop with DDP
 - `prune_unstructured.py`: Iterative prune-finetune loop with importance scores (L1, Fisher, Taylor, random)
 - `prune_attention_heads.py`: Structured attention head pruning
 - `distill.py`: Knowledge distillation via hidden layer MSE matching
 - `utils/`: Helper functions as well as importance score implementations
 
-### `src/inference/`
+`src/inference/`
 - `make_inference.py`: Generate rollout predictions
 - `short_analysis.py`: Analyses for short leadtime trajectories
 - `long_analysis.py`: Analyses for long leadtime trajectories
 - `make_gif.py`: Generate GIF animation of rollout
 
-### `src/data/`
+`src/data/`
 - `datasets`: PyTorch dataset for 2D turbulence frames with configurable stride/steps
 
-## Auxiliary code
-- `configs/`: TOML files for running training, pruning, etc. jobs
-- `notebooks/`: analysis and visualization notebooks
-- `jobs/`: PBS scripts for running compute jobs on cluster
-- `scripts/`: Python scripts setting up and running routines from `src/`
+`configs/`: TOML files for running training, pruning, etc. jobs
+`notebooks/`: analysis and visualization notebooks
+`jobs/`: PBS scripts for running compute jobs on cluster
+`scripts/`: Python scripts setting up and running routines from `src/`
+`datagen/`: Code for running Py2D fluid simulations and producing data files
 
 ## Code style
 

@@ -1,4 +1,5 @@
 [model]
+model_type = "EncoderDecoderViT"
 img_size = 256
 patch_size = 4
 tubelet_size = 2
