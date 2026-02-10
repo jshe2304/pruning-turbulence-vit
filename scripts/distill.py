@@ -20,7 +20,7 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from src.models.vit import ViT
-from src.data.datasets import TimeSeriesDataset
+from src.data.py2d_dataset import Py2DDataset
 from src.training.distill import distill
 
 def main(config: dict):
@@ -69,8 +69,8 @@ def main(config: dict):
 
     # Initialize datasets
 
-    train_dataset = TimeSeriesDataset(**config['train_dataset'])
-    validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
+    train_dataset = Py2DDataset(**config['train_dataset'])
+    validation_dataset = Py2DDataset(**config['validation_dataset'])
 
     # Distill model
 

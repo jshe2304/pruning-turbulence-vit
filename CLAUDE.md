@@ -6,6 +6,20 @@ Research project investigating how pruning (and model compression more generally
 
 This codebase supports modular implementations of training, pruning, and evaluation procedures. 
 
+## Project data
+
+The datas used for model training are fluid emulations computed using the py2d package, which is installed at @/glade/u/home/jshen/py2d. The data is stored in .mat files in either @/glade/derecho/scratch/jshen/2DTurbData/results or @/glade/derecho/scratch/dpatel/2DTurbData/results. The file tree is organized so that the path specifies the parameters of the run. 
+
+For example, @/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1 corresponds to a run with:
+- Reynold's number = 5000
+- Forcing numbers kx = 0, ky=4
+- Friction coefficient = 0.1
+- Coriolis coefficent = 20
+- NoSGS
+- Grid size of 256 pixels
+- Timestep 0.0002
+- Initial condition 1
+
 ## Package organization
 
 ### `src/models/`

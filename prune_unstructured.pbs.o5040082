@@ -1,0 +1,66 @@
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/glade/u/home/jshen/pruning-turbulence-vit/scripts/prune_unstructured.py", line 110, in <module>
+Traceback (most recent call last):
+  File "/glade/u/home/jshen/pruning-turbulence-vit/scripts/prune_unstructured.py", line 110, in <module>
+Traceback (most recent call last):
+  File "/glade/u/home/jshen/pruning-turbulence-vit/scripts/prune_unstructured.py", line 110, in <module>
+  File "/glade/u/home/jshen/pruning-turbulence-vit/scripts/prune_unstructured.py", line 110, in <module>
+        config_path = sys.argv[1]config_path = sys.argv[1]    
+
+    config_path = sys.argv[1]IndexErrorconfig_path = sys.argv[1]: IndexError
+
+list index out of range: IndexError
+IndexErrorlist index out of range: : 
+list index out of rangelist index out of range
+
+E0210 14:47:14.651000 31224 site-packages/torch/distributed/elastic/multiprocessing/api.py:874] failed (exitcode: 1) local_rank: 0 (pid: 35754) of binary: /glade/work/jshen/conda-envs/vit/bin/python3.10
+Traceback (most recent call last):
+  File "/glade/work/jshen/conda-envs/vit/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 355, in wrapper
+    return f(*args, **kwargs)
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/run.py", line 892, in main
+    run(args)
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/run.py", line 883, in run
+    elastic_launch(
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 139, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/glade/work/jshen/conda-envs/vit/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 270, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+scripts/prune_unstructured.py FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-02-10_14:47:14
+  host      : deg0010.hsn.de.hpc.ucar.edu
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 35755)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[2]:
+  time      : 2026-02-10_14:47:14
+  host      : deg0010.hsn.de.hpc.ucar.edu
+  rank      : 2 (local_rank: 2)
+  exitcode  : 1 (pid: 35756)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[3]:
+  time      : 2026-02-10_14:47:14
+  host      : deg0010.hsn.de.hpc.ucar.edu
+  rank      : 3 (local_rank: 3)
+  exitcode  : 1 (pid: 35757)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-02-10_14:47:14
+  host      : deg0010.hsn.de.hpc.ucar.edu
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 35754)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================

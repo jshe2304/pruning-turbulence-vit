@@ -1,4 +1,5 @@
 import os
+import re
 
 import numpy as np
 from scipy.io import loadmat
@@ -10,7 +11,7 @@ from torchvision.transforms import Normalize
 from py2d.initialize import initialize_wavenumbers_rfft2
 from py2d.convert import Omega2Psi, Psi2UV
 
-class TimeSeriesDataset(Dataset):
+class Py2DDataset(Dataset):
     def __init__(self, data_dir, frame_range, stride, target_step, input_step, num_frames=1, **kwargs): 
         """
         Args:
@@ -78,8 +79,8 @@ class TimeSeriesDataset(Dataset):
     def _omega_to_uv(self, omega: np.ndarray) -> torch.Tensor:
         nx, ny = omega.shape
         Kx, Ky, _, _, invKsq = initialize_wavenumbers_rfft2(
-            nx, ny, 
-            2*np.pi, 2*np.pi, 
+            nx, ny,
+            2*np.pi, 2*np.pi,
             INDEXING='ij'
         )
         psi = Omega2Psi(omega, invKsq)

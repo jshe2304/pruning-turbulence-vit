@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#PBS -A UCHI0014
+#PBS -j oe
+#PBS -k eod
+#PBS -q main
+#PBS -M jshe@uchicago.edu
+#PBS -l walltime=12:00:00
+#PBS -l select=1:ncpus=12:ngpus=1:gpu_type=a100
+
+cd /glade/derecho/scratch/jshen/2DTurbData
+
+module load conda
+module load cuda
+conda activate vit
+
+Re=${Re:-5000}
+
+python /glade/u/home/jshen/pruning-turbulence-vit/datagen/generate.py --Re ${Re}

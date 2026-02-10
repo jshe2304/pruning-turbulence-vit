@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 from src.models.vit import ViT
-from src.data.datasets import TimeSeriesDataset
+from src.data.py2d_dataset import Py2DDataset
 
 from src.inference.short_analysis import perform_short_analysis
 
@@ -26,8 +26,8 @@ def main(config: dict):
 
     # Load data
 
-    test_dataset = TimeSeriesDataset(**config['test_dataset']) 
-    climo_dataset = TimeSeriesDataset(**config['climo_dataset'])
+    test_dataset = Py2DDataset(**config['test_dataset'])
+    climo_dataset = Py2DDataset(**config['climo_dataset'])
 
     # Compute metrics
 

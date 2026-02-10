@@ -1,16 +1,8 @@
 """
 Vision Transformer iterative pruning script. 
 Here, we implement a prune-finetune-repeat loop on a pretrained model. 
-Does not support distributed training. 
 
-To run, pass in a path to a TOML config file as an argument. 
-The TOML should contain the following sections:
-- model
-- train_dataset
-- validation_dataset
-- pruning
-- finetuning
-- output_dir
+
 """
 
 import sys
@@ -24,7 +16,7 @@ import torch.nn.utils.prune as prune
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from src.models.simple_vit import SimpleViT
-from src.data.datasets import TimeSeriesDataset
+from src.data.py2d_dataset import Py2DDataset
 from src.training.prune_unstructured import prune_unstructured
 
 torch.autograd.set_detect_anomaly(True)
@@ -91,8 +83,8 @@ def main(config: dict):
 
     # Initialize datasets
 
-    train_dataset = TimeSeriesDataset(**config['train_dataset'])
-    validation_dataset = TimeSeriesDataset(**config['validation_dataset'])
+    train_dataset = Py2DDataset(**config['train_dataset'])
+    validation_dataset = Py2DDataset(**config['validation_dataset'])
 
     # Prune model
 

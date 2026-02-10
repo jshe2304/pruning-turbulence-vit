@@ -28,7 +28,7 @@ num_frames = 2
 
 [pruning]
 importance_metric = 'l1'
-prune_schedule = [0, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
+prune_schedule = [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
 epoch_schedule = [128,  128,  128,  128,  128,  128,  128,  128]
 
 [finetuning]

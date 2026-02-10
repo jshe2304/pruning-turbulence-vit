@@ -6,7 +6,7 @@ import copy
 import torch
 
 from src.models.vit import ViT
-from src.data.datasets import TimeSeriesDataset
+from src.data.py2d_dataset import Py2DDataset
 
 from src.inference.make_inference import make_inference
 
@@ -25,7 +25,7 @@ def main(config: dict):
 
     # Load data
 
-    dataset = TimeSeriesDataset(**config['dataset']) 
+    dataset = Py2DDataset(**config['dataset'])
 
     # Save inference
 

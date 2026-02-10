@@ -6,7 +6,7 @@ import copy
 import torch
 
 from src.models.vit import ViT
-from src.data.datasets import TimeSeriesDataset
+from src.data.py2d_dataset import Py2DDataset
 
 from src.inference.make_gif import make_gif
 
@@ -25,7 +25,7 @@ def main(config: dict):
 
     # Load test data
 
-    test_dataset = TimeSeriesDataset(**config['test_dataset']) 
+    test_dataset = Py2DDataset(**config['test_dataset'])
     
     # Make gif
 

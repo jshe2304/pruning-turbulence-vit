@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader
 
 from src.models.vit import ViT
 from src.models.simple_vit import SimpleViT
-from src.data.datasets import TimeSeriesDataset
+from src.data.py2d_dataset import Py2DDataset
 from src.training.utils.importance_scores import compute_importance_scores
 
 METRICS = ['l1', 'taylor', 'fisher', 'random']
@@ -124,8 +124,8 @@ def main():
     model = load_model(config, device)
     print(f"Parameters: {model.n_parameters():,}")
 
-    val_dataset = TimeSeriesDataset(**config['validation_dataset'])
-    train_dataset = TimeSeriesDataset(**config['train_dataset'])
+    val_dataset = Py2DDataset(**config['validation_dataset'])
+    train_dataset = Py2DDataset(**config['train_dataset'])
 
     baseline_loss = evaluate(model, val_dataset, device, args.eval_samples, args.eval_batch_size)
     print(f"Baseline loss: {baseline_loss:.6e}\n")
