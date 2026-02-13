@@ -50,7 +50,7 @@ def prune_attention_head(model, dataset, device):
 
             # Compute loss
 
-            loss = compute_loss(model, dataset, num_rollout_steps=1, device=device)
+            loss = compute_loss(model, dataset, device=device)
 
             # Restore mask slices
 

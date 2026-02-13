@@ -57,11 +57,6 @@ def main(config: dict):
     model.load_state_dict(model_state_dict)
     model = DDP(model, device_ids=[local_rank], output_device=local_rank)
 
-    # Adjust target steps for rollout losses
-
-    config['train_dataset']['target_step'] *= config['finetuning']['num_rollout_steps']
-    config['validation_dataset']['target_step'] *= config['finetuning']['num_rollout_steps']
-
     # Initialize datasets
 
     train_dataset = Py2DDataset(**config['train_dataset'])

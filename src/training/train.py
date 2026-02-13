@@ -18,7 +18,7 @@ from .utils import compute_loss
 
 def train_one_epoch(
     model, device,
-    train_dataloader, num_rollout_steps,
+    train_dataloader,
     optimizer, scheduler=None,
     **kwargs
     ):
@@ -30,7 +30,6 @@ def train_one_epoch(
         optimizer: The optimizer to use
         device: The device to use
         train_dataloader: The dataloader for the training data
-        num_rollout_steps: The number of steps to roll out for the validation dataset
     """
 
     model.train()
@@ -40,10 +39,7 @@ def train_one_epoch(
 
         optimizer.zero_grad()
 
-        for _ in range(num_rollout_steps):
-            y_pred = model(*inputs)
-            prev_ic = inputs[0][:, :, :-1, :, :].contiguous()
-            inputs[0] = torch.cat([y_pred, prev_ic], dim=2)
+        y_pred = model(*inputs)
 
         loss = F.mse_loss(y_pred, target)
         loss.backward()
@@ -52,11 +48,10 @@ def train_one_epoch(
 
 def train(
     model, device,
-    train_dataset, validation_dataset, 
-    checkpoint_dir, 
-    optimizer_state=None, 
-    num_rollout_steps=1, 
-    start_epoch=0, epochs=1000, batch_size=32, 
+    train_dataset, validation_dataset,
+    checkpoint_dir,
+    optimizer_state=None,
+    start_epoch=0, epochs=1000, batch_size=32,
     checkpoint_period=None, save_best=True, 
     lr=0.0001, weight_decay=0, 
     warmup_start_factor=0.001, warmup_epochs=3, 
@@ -83,7 +78,6 @@ def train(
         plateau_patience: The patience for the plateau phase
         checkpoint_dir: The directory to save checkpoints
         optimizer_state: The optimizer state to resume from (None = fresh start)
-        num_rollout_steps: Number of rollout steps for loss computation
         early_stop_lr_threshold: Stop training when LR drops below this (0 = disabled)
         checkpoint_period: Save checkpoint every N epochs (None = disabled)
         save_best: Whether to save best.tar based on validation loss
@@ -139,31 +133,20 @@ def train(
         sampler.set_epoch(epoch)
         train_one_epoch(
             model, device,
-            train_dataloader, num_rollout_steps,
+            train_dataloader,
             optimizer, scheduler=warmup
         )
 
         # Sample losses
 
         train_loss = compute_loss(
-            model, train_dataset, num_rollout_steps=num_rollout_steps,
+            model, train_dataset,
             batch_size=batch_size, device=device
         )
         validation_loss = compute_loss(
-            model, validation_dataset, num_rollout_steps=num_rollout_steps,
+            model, validation_dataset,
             batch_size=batch_size, device=device, n_samples=8192
         )
-
-        # Sample single-step loss if using multi-step rollout
-
-        single_step_loss = validation_loss
-        if num_rollout_steps > 1:
-            validation_dataset.target_step //= num_rollout_steps
-            single_step_loss = compute_loss(
-                model, validation_dataset, num_rollout_steps=1,
-                batch_size=batch_size, device=device
-            )
-            validation_dataset.target_step *= num_rollout_steps
 
         # Step scheduler
 
@@ -181,11 +164,9 @@ def train(
             if logger is not None:
                 log_dict = {
                     "train_loss": train_loss,
-                    "validation_loss": single_step_loss,
+                    "validation_loss": validation_loss,
                     "lr": optimizer.param_groups[0]['lr']
                 }
-                if num_rollout_steps > 1:
-                    log_dict["rollout_loss"] = validation_loss
                 if has_pruning:
                     log_dict["unpruned_parameters"] = unpruned_parameters
                     log_dict["proportion_remaining"] = proportion_remaining

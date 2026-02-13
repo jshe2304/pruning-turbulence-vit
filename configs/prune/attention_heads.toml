@@ -40,7 +40,6 @@ num_frames = 2
 num_iterations=12
 
 [finetuning]
-num_rollout_steps = 1
 restart_optimizer = true
 batch_size = 32
 epochs = 192

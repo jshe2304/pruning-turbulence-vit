@@ -97,11 +97,6 @@ def main(config: dict):
         prune.custom_from_mask(module, param, mask) # re-apply masks after DDP
     del masks
 
-    # Adjust target steps for rollout losses
-
-    config['train_dataset']['target_step'] *= config['finetuning']['num_rollout_steps']
-    config['validation_dataset']['target_step'] *= config['finetuning']['num_rollout_steps']
-
     # Initialize datasets
 
     train_dataset = Py2DDataset(**config['train_dataset'])

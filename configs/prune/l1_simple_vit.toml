@@ -33,7 +33,6 @@ prune_schedule = [0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
 epoch_schedule = [128,  128,  128,  128,  128,  128,  128,  128]
 
 [finetuning]
-num_rollout_steps = 1
 restart_optimizer = true
 batch_size = 16
 lr = 0.00002
