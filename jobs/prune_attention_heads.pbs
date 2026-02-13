@@ -3,6 +3,7 @@
 #PBS -A URIC0009
 #PBS -j oe
 #PBS -k eod
+#PBS -o logs/
 #PBS -q main
 #PBS -M jshe@uchicago.edu
 #PBS -l walltime=12:00:00
@@ -15,5 +16,4 @@ module load conda
 module load cuda
 conda activate vit
 
-torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/prune_attention_heads.py ${config}
-qsub -v config=${config} jobs/prune_attention_heads.pbs
+torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/prune_attention_heads.py ${arg}

@@ -52,20 +52,17 @@ def train_one_epoch(
 
 def train(
     model, device,
-    train_dataset, validation_dataset,
-    epochs, batch_size,
-    lr, weight_decay,
-    warmup_start_factor,
-    plateau_factor, plateau_patience,
-    output_dir,
-    # Optional parameters (enable finetune-specific behavior)
-    warmup_epochs=None,             # Warmup epochs (alias: num_warmup_epochs)
-    optimizer_state=None,           # Resume from saved optimizer state
-    num_rollout_steps=1,            # Multi-step rollout for loss
-    early_stop_lr_threshold=0,      # Early stopping (0 = disabled)
-    checkpoint_period=None,         # Periodic checkpoints (None = disabled)
-    save_best=True,                 # Save best.tar based on validation loss
-    logger=None,
+    train_dataset, validation_dataset, 
+    checkpoint_dir, 
+    optimizer_state=None, 
+    num_rollout_steps=1, 
+    start_epoch=0, epochs=1000, batch_size=32, 
+    checkpoint_period=None, save_best=True, 
+    lr=0.0001, weight_decay=0, 
+    warmup_start_factor=0.001, warmup_epochs=3, 
+    plateau_factor=0.5, plateau_patience=5, 
+    early_stop_lr_threshold=0, 
+    logger=None, 
     **kwargs
     ):
     """
@@ -84,7 +81,7 @@ def train(
         warmup_epochs: The total number of epochs for the warmup phase
         plateau_factor: The factor for the plateau phase
         plateau_patience: The patience for the plateau phase
-        output_dir: The directory to save the logs and checkpoints
+        checkpoint_dir: The directory to save checkpoints
         optimizer_state: The optimizer state to resume from (None = fresh start)
         num_rollout_steps: Number of rollout steps for loss computation
         early_stop_lr_threshold: Stop training when LR drops below this (0 = disabled)
@@ -94,16 +91,7 @@ def train(
         **kwargs: Overflow arguments
     """
 
-    # Handle alias for warmup_epochs
-    if warmup_epochs is None:
-        warmup_epochs = kwargs.pop('num_warmup_epochs', 0)
-
     local_rank = int(os.environ.get("LOCAL_RANK", "0"))
-
-    # Logging paths
-
-    if local_rank == 0:
-        os.makedirs(output_dir, exist_ok=True)
 
     # Dataloader
 
@@ -144,7 +132,7 @@ def train(
     # Training
 
     best_validation_loss = float('inf')
-    for epoch in range(epochs):
+    for epoch in range(start_epoch, start_epoch + epochs):
 
         # Train
 
@@ -163,7 +151,7 @@ def train(
         )
         validation_loss = compute_loss(
             model, validation_dataset, num_rollout_steps=num_rollout_steps,
-            batch_size=batch_size, device=device
+            batch_size=batch_size, device=device, n_samples=8192
         )
 
         # Sample single-step loss if using multi-step rollout
@@ -214,7 +202,7 @@ def train(
                         'model_state': model.module.state_dict(),
                         'optimizer_state': optimizer.state_dict()
                     },
-                    os.path.join(output_dir, "best.tar")
+                    os.path.join(checkpoint_dir, "best.tar")
                 )
 
             # Save periodic checkpoint
@@ -226,7 +214,7 @@ def train(
                         'model_state': model.module.state_dict(),
                         'optimizer_state': optimizer.state_dict()
                     },
-                    os.path.join(output_dir, f"epoch_{epoch}.tar")
+                    os.path.join(checkpoint_dir, f"{epoch}.tar")
                 )
 
             # Save last checkpoint (always)
@@ -237,7 +225,7 @@ def train(
                     'model_state': model.module.state_dict(),
                     'optimizer_state': optimizer.state_dict()
                 },
-                os.path.join(output_dir, "last.tar")
+                os.path.join(checkpoint_dir, "last.tar")
             )
 
         # Early stopping

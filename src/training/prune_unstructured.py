@@ -7,15 +7,15 @@ from .train import train
 from .utils import compute_importance_scores
 
 def prune_unstructured(
-    model, device, 
+    model, device,
     optimizer_state,
-    train_dataset, validation_dataset, 
-    importance_metric, prune_schedule, epoch_schedule,  
-    output_dir, logger=None,
+    train_dataset, validation_dataset,
+    importance_metric, prune_schedule, epoch_schedule,
+    checkpoint_dir, logger=None,
     **finetune_config,
     ):
     """
-    Prune the model using unstructured pruning. 
+    Prune the model using unstructured pruning.
 
     Args:
         model: The model to prune
@@ -26,16 +26,12 @@ def prune_unstructured(
         importance_metric: The importance metric to use
         prune_schedule: The schedule of pruning amounts
         epoch_schedule: The schedule of epochs to prune
+        checkpoint_dir: The directory to save checkpoints
         logger: The wandb logger
         **finetune_config: Training configuration (see `train.py`)
     """
 
     local_rank = int(os.environ.get("LOCAL_RANK", "0"))
-
-    # Create pruned models directory (only on rank 0)
-
-    if local_rank == 0:
-        os.makedirs(output_dir, exist_ok=True)
 
     # Iterative pruning
 
@@ -80,7 +76,7 @@ def prune_unstructured(
         optimizer_state = train(
             model, device,
             train_dataset, validation_dataset,
-            output_dir=output_dir,
+            checkpoint_dir=checkpoint_dir,
             optimizer_state=optimizer_state,
             save_best=False,
             epochs=epochs,
@@ -98,8 +94,8 @@ def prune_unstructured(
 
             torch.save(
                 {
-                    'model_state': model.module.state_dict(), 
+                    'model_state': model.module.state_dict(),
                     'optimizer_state': optimizer_state
-                }, 
-                os.path.join(output_dir, f'{(100 * proportion_remaining):.2f}.tar')
+                },
+                os.path.join(checkpoint_dir, f'{(100 * proportion_remaining):.2f}.tar')
             )

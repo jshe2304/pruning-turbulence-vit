@@ -3,8 +3,8 @@
 #PBS -A UCHI0014
 #PBS -j oe
 #PBS -k eod
+#PBS -o logs/
 #PBS -q main
-#PBS -M jshe@uchicago.edu
 #PBS -l walltime=12:00:00
 #PBS -l select=1:ncpus=64:ngpus=4
 #PBS -l gpu_type=a100
@@ -15,4 +15,4 @@ module load conda
 module load cuda
 conda activate vit
 
-torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/distill.py ${config}
+torchrun --standalone --nnodes=1 --nproc-per-node=4 scripts/distill.py ${arg}

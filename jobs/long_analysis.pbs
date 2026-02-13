@@ -3,6 +3,7 @@
 #PBS -A UCHI0014
 #PBS -j oe
 #PBS -k eod
+#PBS -o logs/
 #PBS -q main
 #PBS -l walltime=12:00:00
 #PBS -l select=1:ncpus=32:ngpus=1
@@ -12,4 +13,4 @@ cd /glade/u/home/jshen/pruning-turbulence-vit
 module load conda
 conda activate vit
 
-python scripts/long_analysis.py ${config}
+python scripts/long_analysis.py ${arg}

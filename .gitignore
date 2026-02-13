@@ -1,6 +1,7 @@
 # PBS/HPC job output files
 *.pbs.o*
 *.pbs.e*
+logs/
 
 # Wandb
 wandb/

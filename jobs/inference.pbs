@@ -5,11 +5,11 @@
 #PBS -A UCHI0014
 #PBS -m abe
 #PBS -j oe
+#PBS -o logs/
 
 cd /glade/u/home/jshen/pruning-turbulence-vit
 
 module load conda
 conda activate vit
 
-python scripts/make_inference.py ${config}
-#qsub -v config=configs/inference/long_analysis.toml ./jobs/long_analysis.pbs
+python scripts/make_inference.py ${arg}

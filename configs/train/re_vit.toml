@@ -1,3 +1,5 @@
+output_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/re_vit_0/'
+
 [model]
 model_type = "ReViT"
 img_size = 256
@@ -9,9 +11,15 @@ num_frames = 2
 
 [train_dataset]
 data_dirs = [
-    '/glade/derecho/scratch/jshen/2DTurbData/results/Re1000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
-    '/glade/derecho/scratch/jshen/2DTurbData/results/Re3000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
-    '/glade/derecho/scratch/jshen/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re1032_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re1275_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re1574_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re2119_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re2744_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re3953_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re4098_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re4712_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re4906_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
 ]
 frame_range = [ [5000, 25000] ]
 target_step = 3
@@ -21,8 +29,10 @@ num_frames = 2
 
 [validation_dataset]
 data_dirs = [
-    '/glade/derecho/scratch/jshen/2DTurbData/results/Re1000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
-    '/glade/derecho/scratch/jshen/2DTurbData/results/Re3000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re1000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re2000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re3000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re4000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
 ]
 frame_range = [ [5000, 25000] ]
@@ -35,10 +45,9 @@ num_frames = 2
 lr = 0.0005
 weight_decay = 1e-7
 warmup_start_factor = 0.001
-warmup_epochs = 3 # Base uses 3 epochs per 20000 training frames
-plateau_factor = 0.2
-plateau_patience = 5
+warmup_epochs = 0.3 # Base uses 3 epochs per 20000 training frames
+plateau_factor = 0.4
+plateau_patience = 2
 epochs = 1000
 batch_size = 32
-checkpoint_period = 5
-output_dir = '/glade/derecho/scratch/jshen/pruning-turbulence-vit/re_vit_0/'
+checkpoint_period = 50

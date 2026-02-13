@@ -1,6 +1,6 @@
 [analysis]
-inference_dir = "/glade/derecho/scratch/jshen/prune_base/l1_new/inferences/32.15/"
-output_dir = "/glade/derecho/scratch/jshen/prune_base/l1_new/long_analyses/32.15/"
+inference_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128/inferences/"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128/long_analyses/"
 img_size = 256
 
 analysis_length = 750000

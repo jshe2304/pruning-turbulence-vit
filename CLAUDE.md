@@ -29,6 +29,16 @@ The pipeline is as follows:
 4. Run inference
 5. Run long analysis (needs inference)
 
+## Output file structure
+
+Ideally, the outputs of training and pruning runs obey the following structure under root `/glade/derecho/scratch/jshen/pruning-turbulence-vit/`:
+- `<run_name>/`: Folder corresponding to a specific train/prune run
+- `<run_name>/checkpoints/`: Model checkpoints (`*.tar`) containing weights, optimizer, epoch
+- `<run_name>/inference/`: Inference `.npy` files
+- `<run_name>/short_analyses/`: Short analysis outputs
+- `<run_name>/long_analyses/`: Long analysis outputs
+
+
 ## Package organization
 
 `src/models/`

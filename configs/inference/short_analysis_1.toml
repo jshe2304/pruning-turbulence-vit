@@ -1,0 +1,31 @@
+checkpoint_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128/checkpoints/"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128/short_analyses/"
+
+[model]
+model_type = "ViT"
+img_size = 256
+patch_size = 4
+embed_dim = 128
+depth = 8
+num_heads = 4
+num_frames = 2
+
+[test_dataset]
+data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
+frame_range = [350000, 353600]
+target_step = 3
+input_step = 3
+stride = 3
+num_frames = 2
+
+[climo_dataset]
+data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
+frame_range = [350000, 351000]
+target_step = 1
+input_step = 1
+stride = 1
+num_frames = 1
+
+[analysis]
+max_leadtime = 100
+n_ensembles = 10

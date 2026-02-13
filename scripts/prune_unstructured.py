@@ -1,8 +1,11 @@
 """
-Vision Transformer iterative pruning script. 
-Here, we implement a prune-finetune-repeat loop on a pretrained model. 
+Vision Transformer iterative pruning script.
+Here, we implement a prune-finetune-repeat loop on a pretrained model.
 
-
+To run, pass in:
+- A path to a TOML pruning config file to start a new pruning run
+  (config must specify checkpoint_file pointing to trained model)
+- A path to an output directory to resume from a previous pruning run
 """
 
 import sys
@@ -45,15 +48,33 @@ def main(config: dict):
     device = torch.device(f"cuda:{local_rank}")
     torch.cuda.set_device(device)
 
+    # Create output and checkpoint directories (only rank 0 process)
+
+    output_dir = config['output_dir']
+    checkpoint_dir = os.path.join(output_dir, 'checkpoints')
+    if local_rank == 0:
+        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(checkpoint_dir, exist_ok=True)
+
     # Initialize wandb
 
     logger = wandb.init(
         project="turbulence-vit-prune",
         group=config['pruning']['importance_metric'],
-        id=config.get('wandb_id', None), 
+        id=config.get('wandb_id', None),
         config=config,
         resume='allow'
     ) if local_rank == 0 else None
+
+    # Save config with wandb_id (only for new runs, rank 0 only)
+
+    if 'wandb_id' not in config: 
+        config['wandb_id'] = logger.id
+        config_path = os.path.join(output_dir, 'config.toml')
+        with open(config_path, 'w') as f:
+            toml.dump(config, f)
+
+    if world_size > 1: dist.barrier()
 
     # Adjust batch size for distributed training
 
@@ -89,16 +110,16 @@ def main(config: dict):
     # Prune model
 
     prune_unstructured(
-        model, device, 
+        model, device,
         optimizer_state,
-        train_dataset, validation_dataset, 
-        **config['pruning'], 
-        **config['finetuning'], 
-        output_dir=config['output_dir'],
-        logger=logger
+        train_dataset, validation_dataset,
+        checkpoint_dir=checkpoint_dir,
+        logger=logger,
+        **config['pruning'],
+        **config['finetuning']
     )
 
-    # Clean up
+    # Clean up logger
 
     if local_rank == 0 and logger is not None: 
         logger.finish()
@@ -107,7 +128,26 @@ def main(config: dict):
 
 if __name__ == '__main__':
 
-    config_path = sys.argv[1]
-    config = toml.load(config_path)
+    path = sys.argv[1]
+
+    # Start new pruning run from a config file
+    if path.endswith('.toml'):
+        prune_config = toml.load(path)
+
+        checkpoint_path = prune_config['checkpoint_file']
+        assert os.path.isfile(checkpoint_path)
+        model_dir = os.path.dirname(os.path.dirname(checkpoint_path))
+        model_config_path = os.path.join(model_dir, 'config.toml')
+        model_config = toml.load(model_config_path)
+
+        del model_config['training']
+        config = model_config | prune_config
+    # Resume pruning run from existing prune run directory
+    elif os.path.isdir(path):
+        config = toml.load(os.path.join(path, 'config.toml'))
+        config['checkpoint_file'] = os.path.join(path, 'checkpoints/last.tar')
+        config['pruning']['prune_schedule'].insert(0, 0.0)
+    else:
+        raise ValueError(f"Invalid path: {path}")
 
     main(config)

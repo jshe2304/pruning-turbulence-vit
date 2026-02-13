@@ -16,8 +16,8 @@ def get_3d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
     h_embed_dim = embed_dim // 16 * 6
     t_embed_dim = embed_dim // 16 * 4
 
-    w_pos_embed = get_1d_sincos_pos_embed_from_grid(w_embed_dim, np.arange(w_size))
-    h_pos_embed = get_1d_sincos_pos_embed_from_grid(h_embed_dim, np.arange(h_size))
+    w_pos_embed = get_1d_sincos_pos_embed_from_grid(w_embed_dim, np.arange(w_size), grid_size=w_size)
+    h_pos_embed = get_1d_sincos_pos_embed_from_grid(h_embed_dim, np.arange(h_size), grid_size=h_size)
     t_pos_embed = get_1d_sincos_pos_embed_from_grid(t_embed_dim, np.arange(t_size))
 
     w_pos_embed = np.tile(w_pos_embed, (t_size * h_size, 1))
@@ -30,18 +30,27 @@ def get_3d_sincos_pos_embed(embed_dim, grid_size, cls_token=False):
         pos_embed = np.concatenate([np.zeros([1, embed_dim]), pos_embed], axis=0)
     return pos_embed
 
-def get_1d_sincos_pos_embed_from_grid(embed_dim, pos):
+def get_1d_sincos_pos_embed_from_grid(embed_dim, pos, grid_size=None):
     """
     embed_dim: output dimension for each position
     pos: a list of positions to be encoded: size (M,)
+    grid_size: if provided, use frequencies that are integer harmonics of this
+               period, so that position 0 and position grid_size encode
+               identically. Use for spatial axes with periodic boundary
+               conditions.
     out: (M, D)
     """
     assert embed_dim % 2 == 0
-    omega = np.arange(embed_dim // 2, dtype=np.float32)
-    omega /= embed_dim / 2.
-    omega = 1. / 10000**omega  # (D/2,)
-
     pos = pos.reshape(-1)  # (M,)
+
+    if grid_size is not None:
+        k = np.arange(1, embed_dim // 2 + 1, dtype=np.float32)
+        omega = 2. * np.pi * k / grid_size  # (D/2,)
+    else:
+        omega = np.arange(embed_dim // 2, dtype=np.float32)
+        omega /= embed_dim / 2.
+        omega = 1. / 10000**omega  # (D/2,)
+
     out = np.einsum('m,d->md', pos, omega)  # (M, D/2), outer product
 
     emb_sin = np.sin(out) # (M, D/2)

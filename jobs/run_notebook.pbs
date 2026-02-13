@@ -5,6 +5,7 @@
 #PBS -A UCHI0014
 #PBS -m abe
 #PBS -j oe
+#PBS -o logs/
 
 cd /glade/u/home/jshen/pruning-turbulence-vit/notebooks
 
