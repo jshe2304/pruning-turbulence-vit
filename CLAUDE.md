@@ -20,7 +20,7 @@ For example, @/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r
 - Timestep 0.0002
 - Initial condition 1
 
-## Project pipeline
+## Project workflow
 
 The pipeline is as follows:
 1. Train model
@@ -28,6 +28,11 @@ The pipeline is as follows:
 3. Run short analysis
 4. Run inference
 5. Run long analysis (needs inference)
+
+All outputs should be in run-specific directories in @/glade/derecho/scratch/jshen/pruning-turbulence-vit
+- New training/pruning runs accept a config file, which specifies the output directory
+- New runs save a copy of their config file into the output directory
+- To resume a training/pruning run, pass in the output directory so the program can identify the config file and resume the run properly. 
 
 ## Output file structure
 

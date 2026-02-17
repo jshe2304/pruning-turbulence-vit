@@ -68,7 +68,7 @@ def main(config: dict):
 
     # Save config with wandb_id (only for new runs, rank 0 only)
 
-    if 'wandb_id' not in config: 
+    if local_rank == 0 and 'wandb_id' not in config:
         config['wandb_id'] = logger.id
         config_path = os.path.join(output_dir, 'config.toml')
         with open(config_path, 'w') as f:

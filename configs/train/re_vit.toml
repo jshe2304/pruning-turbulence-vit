@@ -16,12 +16,12 @@ data_dirs = [
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re1574_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re2119_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re2744_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
-    '/glade/derecho/scratch/jshen/2DTurbData/results/Re3953_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1'
+    '/glade/derecho/scratch/jshen/2DTurbData/results/Re3953_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re4098_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re4712_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re4906_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
 ]
-frame_range = [ [5000, 25000] ]
+frame_range = [ [5000, 20000] ]
 target_step = 3
 input_step = 3
 stride = 1
@@ -35,7 +35,7 @@ data_dirs = [
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re4000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1', 
     '/glade/derecho/scratch/jshen/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1',
 ]
-frame_range = [ [5000, 25000] ]
+frame_range = [ [5000, 20000] ]
 target_step = 3
 input_step = 3
 stride = 1

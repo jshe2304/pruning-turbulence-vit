@@ -1,5 +1,5 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128_1f/checkpoints/best.tar"
-output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128_1f_taylor/"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/re_vit_0/checkpoints/best.tar"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/re_vit_0_taylor/"
 
 [pruning]
 importance_metric = 'taylor'

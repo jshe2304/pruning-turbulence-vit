@@ -1,5 +1,5 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128/checkpoints/best.tar"
-output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128/inferences/"
+checkpoint_file = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128_1f/checkpoints/best.tar"
+output_dir = "/glade/derecho/scratch/jshen/pruning-turbulence-vit/vit128_1f/inferences/"
 
 [model]
 model_type = "ViT"
@@ -8,7 +8,7 @@ patch_size = 4
 embed_dim = 128
 depth = 8
 num_heads = 4
-num_frames = 2
+num_frames = 1
 
 [dataset]
 data_dir = "/glade/derecho/scratch/dpatel/2DTurbData/results/Re5000_fkx0fky4_r0.1_b20/NoSGS/NX256/dt0.0002_IC1/"
@@ -16,7 +16,7 @@ frame_range = [350000, 353004]
 target_step = 3
 input_step = 3
 stride = 3
-num_frames = 2
+num_frames = 1
 
 [inference]
 inference_length = 750000
