@@ -20,6 +20,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 
 from src.models import create_model
 from src.data.py2d_dataset import Py2DDataset
+from src.data.multi_py2d_dataset import MultiPy2DDataset
 from src.training.prune_unstructured import prune_unstructured
 
 torch.autograd.set_detect_anomaly(True)
@@ -99,8 +100,10 @@ def main(config: dict):
 
     # Initialize datasets
 
-    train_dataset = Py2DDataset(**config['train_dataset'])
-    validation_dataset = Py2DDataset(**config['validation_dataset'])
+    TrainDataset = MultiPy2DDataset if 'data_dirs' in config['train_dataset'] else Py2DDataset
+    ValidationDataset = MultiPy2DDataset if 'data_dirs' in config['validation_dataset'] else Py2DDataset
+    train_dataset = TrainDataset(**config['train_dataset'])
+    validation_dataset = ValidationDataset(**config['validation_dataset'])
 
     # Prune model
 
@@ -136,6 +139,7 @@ if __name__ == '__main__':
         model_config = toml.load(model_config_path)
 
         del model_config['training']
+        model_config.pop('wandb_id', None)
         config = model_config | prune_config
     # Resume pruning run from existing prune run directory
     elif os.path.isdir(path):

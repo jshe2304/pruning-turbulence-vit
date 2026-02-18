@@ -15,13 +15,14 @@ def make_inference(model, dataset, inference_length, output_dir, chunk_size=1000
     # Get initial condition
 
     dataloader = DataLoader(dataset, batch_size=1000, shuffle=False)
-    input, _ = next(iter(dataloader))
-    ic = input[0].unsqueeze(dim=0).to(device)
+    ic, log_re, _ = next(iter(dataloader))
+    ic = ic[0].unsqueeze(dim=0).to(device)
+    log_re = log_re[0:1].to(device)
 
     # Emulate and save
     chunk = []
     for i in range(inference_length):
-        pred, ic = single_step_rollout(model, ic, train_tendencies=False)
+        pred, ic = single_step_rollout(model, ic, log_re=log_re)
 
         pred = pred.clone().transpose(-1,-2).squeeze().detach().cpu().numpy()
 

@@ -5,7 +5,6 @@
 #PBS -k eod
 #PBS -o logs/
 #PBS -q main
-#PBS -M jshe@uchicago.edu
 #PBS -l walltime=12:00:00
 #PBS -l select=1:ncpus=64:ngpus=4:gpu_type=a100
 

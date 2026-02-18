@@ -117,7 +117,7 @@ class ViT(nn.Module):
             loss *= weights
         return loss.mean()
 
-    def forward(self, x, train=False):
+    def forward(self, x, *args, **kwargs):
         x = self.patch_embed(x)
         x = x + self.pos_embed
 

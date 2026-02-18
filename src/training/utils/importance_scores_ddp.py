@@ -52,13 +52,14 @@ def _compute_taylor_importance(model, device, dataset, batch_size=4, num_batches
     model.eval()
 
     seen_samples = 0
-    for i, (x, y_true) in enumerate(dataloader):
+    for i, (*inputs, y_true) in enumerate(dataloader):
         if i >= num_batches: break
-        x, y_true = x.to(device, non_blocking=True), y_true.to(device, non_blocking=True)
+        inputs = [x.to(device, non_blocking=True) for x in inputs]
+        y_true = y_true.to(device, non_blocking=True)
 
         model.zero_grad(set_to_none=True)
         with model.no_sync():
-            y_pred = model(x)
+            y_pred = model(*inputs)
             per_sample_mse = (y_pred - y_true).pow(2)
             if per_sample_mse.ndim > 2:
                 per_sample_mse = per_sample_mse.flatten(1)
@@ -79,7 +80,7 @@ def _compute_taylor_importance(model, device, dataset, batch_size=4, num_batches
                 p_val = getattr(m, name)  # Use the (possibly masked) weight for the value
                 if p_grad.grad is not None:
                     scores[(m, name)].add_((p_grad.grad * p_val).abs())
-        seen_samples += x.size(0)
+        seen_samples += inputs[0].size(0)
 
     # Reduce across all ranks
     seen_samples_tensor = torch.tensor(seen_samples, device=device)
@@ -127,13 +128,14 @@ def _compute_fisher_importance(model, device, dataset, batch_size=32, num_batche
     model.eval()
 
     seen_samples = 0
-    for i, (x, y_true) in enumerate(dataloader):
+    for i, (*inputs, y_true) in enumerate(dataloader):
         if i >= num_batches: break
-        x, y_true = x.to(device, non_blocking=True), y_true.to(device, non_blocking=True)
+        inputs = [x.to(device, non_blocking=True) for x in inputs]
+        y_true = y_true.to(device, non_blocking=True)
 
         model.zero_grad(set_to_none=True)
         with model.no_sync():
-            y_pred = model(x)
+            y_pred = model(*inputs)
             per_sample_mse = (y_pred - y_true).pow(2)
             if per_sample_mse.ndim > 2:
                 per_sample_mse = per_sample_mse.flatten(1)
@@ -152,7 +154,7 @@ def _compute_fisher_importance(model, device, dataset, batch_size=32, num_batche
                     p = getattr(module, param)
                 if p.grad is not None:
                     scores[(module, param)].add_(p.grad.pow(2))
-        seen_samples += x.size(0)
+        seen_samples += inputs[0].size(0)
 
     # Reduce across all ranks
     seen_samples_tensor = torch.tensor(seen_samples, device=device)

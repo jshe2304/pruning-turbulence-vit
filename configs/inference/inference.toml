@@ -1,4 +1,4 @@
-checkpoint_file = "/glade/derecho/scratch/jshen/prune_base/l1_new/checkpoints/32.15.tar"
+alscheckpoint_file = "/glade/derecho/scratch/jshen/prune_base/l1_new/checkpoints/32.15.tar"
 output_dir = "/glade/derecho/scratch/jshen/prune_base/l1_new/inferences/32.15/"
 
 [model]

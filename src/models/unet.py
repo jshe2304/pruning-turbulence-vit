@@ -4,15 +4,17 @@ import torch.nn.utils.prune as prune
 
 
 class DoubleConv(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, dropout=0.0):
         super().__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, padding=1, padding_mode='circular'),
             nn.GroupNorm(1, out_channels),
             nn.GELU(),
+            nn.Dropout2d(dropout),
             nn.Conv2d(out_channels, out_channels, 3, padding=1, padding_mode='circular'),
             nn.GroupNorm(1, out_channels),
             nn.GELU(),
+            nn.Dropout2d(dropout),
         )
 
     def forward(self, x):
@@ -20,11 +22,11 @@ class DoubleConv(nn.Module):
 
 
 class Down(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, dropout=0.0):
         super().__init__()
         self.pool_conv = nn.Sequential(
             nn.MaxPool2d(2),
-            DoubleConv(in_channels, out_channels),
+            DoubleConv(in_channels, out_channels, dropout),
         )
 
     def forward(self, x):
@@ -32,10 +34,10 @@ class Down(nn.Module):
 
 
 class Up(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, dropout=0.0):
         super().__init__()
         self.up = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
-        self.conv = DoubleConv(in_channels, out_channels)
+        self.conv = DoubleConv(in_channels, out_channels, dropout)
 
     def forward(self, x, skip):
         x = self.up(x)
@@ -55,6 +57,7 @@ class UNet(nn.Module):
         num_frames=1,
         base_channels=64,
         depth=4,
+        dropout=0.0,
     ):
         super().__init__()
         self.img_size = img_size
@@ -64,14 +67,14 @@ class UNet(nn.Module):
 
         # Encoder
         channels = [base_channels * (2 ** i) for i in range(depth + 1)]
-        self.inc = DoubleConv(in_chans, channels[0])
+        self.inc = DoubleConv(in_chans, channels[0], dropout)
         self.downs = nn.ModuleList([
-            Down(channels[i], channels[i + 1]) for i in range(depth)
+            Down(channels[i], channels[i + 1], dropout) for i in range(depth)
         ])
 
         # Decoder
         self.ups = nn.ModuleList([
-            Up(channels[i + 1], channels[i]) for i in range(depth - 1, -1, -1)
+            Up(channels[i + 1], channels[i], dropout) for i in range(depth - 1, -1, -1)
         ])
         self.outc = nn.Conv2d(channels[0], out_chans, 1)
 
@@ -110,7 +113,7 @@ class UNet(nn.Module):
             loss *= weights
         return loss.mean()
 
-    def forward(self, x, train=False):
+    def forward(self, x, *args, **kwargs):
         B, C, T, H, W = x.shape
         # Fold frames into channel dim: (B, C*T, H, W)
         x = x.reshape(B, C * T, H, W)

@@ -32,13 +32,12 @@ class ReynoldsEmbedding(nn.Module):
             nn.Linear(embed_dim, embed_dim),
         )
 
-    def forward(self, reynolds):
+    def forward(self, log_re):
         """
-        reynolds: (B,) scalar per sample
+        log_re: (B,) log Reynolds number per sample
         returns: (B, 1, embed_dim)
         """
-        re_log = torch.log(reynolds).unsqueeze(-1)  # (B, 1)
-        return self.mlp(re_log).unsqueeze(1)  # (B, 1, embed_dim)
+        return self.mlp(log_re.unsqueeze(-1)).unsqueeze(1)  # (B, 1, embed_dim)
 
 
 class ReViT(nn.Module):
@@ -135,10 +134,10 @@ class ReViT(nn.Module):
             loss *= weights
         return loss.mean()
 
-    def forward(self, x, reynolds, train=False):
+    def forward(self, x, log_re, train=False):
         x = self.patch_embed(x)
         x = x + self.pos_embed
-        x = x + self.re_embed(reynolds)
+        x = x + self.re_embed(log_re)
 
         for blk in self.blocks:
             x = blk(x)

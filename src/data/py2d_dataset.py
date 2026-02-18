@@ -1,5 +1,6 @@
 import os
-import re
+import math
+import re as regex
 
 import numpy as np
 from scipy.io import loadmat
@@ -27,6 +28,10 @@ class Py2DDataset(Dataset):
         self.input_step = input_step
         self.stride = stride
         self.num_frames = num_frames
+
+        # Parse Reynolds number from data_dir
+        match = regex.search(r'Re(\d+)', data_dir)
+        self.log_re = torch.tensor(math.log(float(match.group(1))), dtype=torch.float32)
 
         # Expand frames into a list of indices
         if type(frame_range[0]) is not list: frame_range = [frame_range]
@@ -67,7 +72,7 @@ class Py2DDataset(Dataset):
         # Load target frame
         target_frame = self._load_and_norm(self.frames[i] + self.target_step).unsqueeze(1)
 
-        return input_frames, target_frame
+        return input_frames, self.log_re, target_frame
 
     def _load_and_norm(self, file_num: int) -> torch.Tensor:
         file_path = os.path.join(self.data_dir, f'data/{file_num}.mat')

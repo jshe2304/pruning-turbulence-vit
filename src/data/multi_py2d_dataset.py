@@ -1,7 +1,5 @@
-import re
 import bisect
 
-import torch
 from torch.utils.data import ConcatDataset
 
 from src.data.py2d_dataset import Py2DDataset
@@ -21,12 +19,6 @@ class MultiPy2DDataset(ConcatDataset):
             input_step: Frames between consecutive input frames
             num_frames: Number of consecutive input frames
         """
-        self.reynolds_numbers = []
-        for d in data_dirs:
-            match = re.search(r'Re(\d+)', d)
-            assert match, f"Could not parse Reynolds number from {d}"
-            self.reynolds_numbers.append(float(match.group(1)))
-
         datasets = [
             Py2DDataset(d, frame_range, stride, target_step, input_step, num_frames, **kwargs)
             for d in data_dirs
@@ -37,7 +29,5 @@ class MultiPy2DDataset(ConcatDataset):
         ds_idx = bisect.bisect_right(self.cumulative_sizes, i)
         sample_idx = i if ds_idx == 0 else i - self.cumulative_sizes[ds_idx - 1]
 
-        input_frames, target_frame = self.datasets[ds_idx][sample_idx]
-        reynolds = torch.tensor(self.reynolds_numbers[ds_idx], dtype=torch.float32)
-
-        return input_frames, reynolds, target_frame
+        # Py2DDataset now returns (input_frames, log_re, target_frame)
+        return self.datasets[ds_idx][sample_idx]

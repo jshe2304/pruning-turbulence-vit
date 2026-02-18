@@ -256,7 +256,7 @@ class EncoderDecoderViT(nn.Module):
 
         return loss
 
-    def forward(self, x, train=False):
+    def forward(self, x, *args, **kwargs):
         latent = self.forward_encoder(x, train=train)
         pred = self.forward_decoder(latent, train=train)
         #pred = self.unpatchify(pred)
